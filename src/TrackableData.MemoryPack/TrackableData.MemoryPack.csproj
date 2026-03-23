@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
+    <LangVersion>11.0</LangVersion>
+    <Description>MemoryPack serialization support for TrackableData tracker types</Description>
+    <Authors>TenY</Authors>
+    <PackageId>TrackableData.MemoryPack</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TrackableData.Core\TrackableData.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MemoryPack" />
+  </ItemGroup>
+</Project>
