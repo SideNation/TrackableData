@@ -1,8 +1,10 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/TrackableData.Core/TrackableData.Core.csproj" />
+    <Project Path="src/TrackableData.Generator/TrackableData.Generator.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/TrackableData.Generator.Tests/TrackableData.Generator.Tests.csproj" />
     <Project Path="tests/TrackableData.Tests/TrackableData.Tests.csproj" />
   </Folder>
 </Solution>
