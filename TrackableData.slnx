@@ -3,10 +3,12 @@
     <Project Path="src/TrackableData.Core/TrackableData.Core.csproj" />
     <Project Path="src/TrackableData.Generator/TrackableData.Generator.csproj" />
     <Project Path="src/TrackableData.MemoryPack/TrackableData.MemoryPack.csproj" />
+    <Project Path="src/TrackableData.MongoDB/TrackableData.MongoDB.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/TrackableData.Generator.Tests/TrackableData.Generator.Tests.csproj" />
     <Project Path="tests/TrackableData.MemoryPack.Tests/TrackableData.MemoryPack.Tests.csproj" />
+    <Project Path="tests/TrackableData.MongoDB.Tests/TrackableData.MongoDB.Tests.csproj" />
     <Project Path="tests/TrackableData.Tests/TrackableData.Tests.csproj" />
   </Folder>
 </Solution>

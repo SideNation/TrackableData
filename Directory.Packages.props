@@ -9,6 +9,12 @@
     <!-- Serialization -->
     <PackageVersion Include="MemoryPack" Version="1.21.3" />
 
+    <!-- MongoDB -->
+    <PackageVersion Include="MongoDB.Driver" Version="3.7.1" />
+
+    <!-- Testing Infra -->
+    <PackageVersion Include="Testcontainers.MongoDb" Version="4.5.0" />
+
     <!-- Code Analysis (Source Generator) -->
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" />
 
