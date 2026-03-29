@@ -16,6 +16,9 @@
     <Project Path="tests/TrackableData.Redis.Tests/TrackableData.Redis.Tests.csproj" />
     <Project Path="tests/TrackableData.Tests/TrackableData.Tests.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/TrackableData.Sample/TrackableData.Sample.csproj" />
+  </Folder>
   <Folder Name="/build/">
     <Project Path="_build/_build.csproj" />
   </Folder>
