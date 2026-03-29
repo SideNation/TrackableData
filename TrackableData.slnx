@@ -14,4 +14,7 @@
     <Project Path="tests/TrackableData.PostgreSql.Tests/TrackableData.PostgreSql.Tests.csproj" />
     <Project Path="tests/TrackableData.Tests/TrackableData.Tests.csproj" />
   </Folder>
+  <Folder Name="/build/">
+    <Project Path="_build/_build.csproj" />
+  </Folder>
 </Solution>

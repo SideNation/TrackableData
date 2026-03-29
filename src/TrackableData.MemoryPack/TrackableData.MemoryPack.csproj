@@ -4,7 +4,7 @@
     <LangVersion>11.0</LangVersion>
     <Description>MemoryPack serialization support for TrackableData tracker types</Description>
     <Authors>TenY</Authors>
-    <PackageId>TrackableData.MemoryPack</PackageId>
+    <PackageId>TrackableDataV2.MemoryPack</PackageId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\TrackableData.Core\TrackableData.Core.csproj" />

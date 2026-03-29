@@ -4,6 +4,9 @@
     <LangVersion>9.0</LangVersion>
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Description>PostgreSQL storage plugin for TrackableData</Description>
+    <Authors>TenY</Authors>
+    <PackageId>TrackableDataV2.PostgreSql</PackageId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Npgsql" />

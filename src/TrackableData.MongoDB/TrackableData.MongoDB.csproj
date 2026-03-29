@@ -5,7 +5,7 @@
     <Nullable>disable</Nullable>
     <Description>MongoDB storage plugin for TrackableData</Description>
     <Authors>TenY</Authors>
-    <PackageId>TrackableData.MongoDB</PackageId>
+    <PackageId>TrackableDataV2.MongoDB</PackageId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\TrackableData.Core\TrackableData.Core.csproj" />

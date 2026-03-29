@@ -10,7 +10,7 @@
     <IncludeBuildOutput>true</IncludeBuildOutput>
     <DevelopmentDependency>true</DevelopmentDependency>
     <IsPackable>true</IsPackable>
-    <PackageId>TrackableData.Generator</PackageId>
+    <PackageId>TrackableDataV2.Generator</PackageId>
     <Description>Source Generator for TrackableData trackable POCO and Container types</Description>
     <Authors>TenY</Authors>
   </PropertyGroup>
