@@ -3,5 +3,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- NuGet Package Metadata -->
+    <Authors>TenY</Authors>
+    <PackageProjectUrl>https://github.com/SideNation/TrackableData</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SideNation/TrackableData.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright (c) 2026 TenY</Copyright>
+    <PackageTags>trackable;change-tracking;poco;dictionary;list;set</PackageTags>
   </PropertyGroup>
 </Project>

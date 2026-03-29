@@ -99,19 +99,15 @@ class Build : NukeBuild
         {
             ArtifactsDirectory.CreateOrCleanDirectory();
 
-            var projects = PackableProjects
-                .Select(name => Solution.GetProject(name))
-                .Where(p => p != null);
-
-            foreach (var project in projects)
+            foreach (var name in PackableProjects)
             {
+                var projectPath = SourceDirectory / name / (name + ".csproj");
                 DotNetPack(s =>
                 {
                     s = s
-                        .SetProject(project)
+                        .SetProject(projectPath)
                         .SetConfiguration("Release")
-                        .SetOutputDirectory(ArtifactsDirectory)
-                        .EnableNoRestore();
+                        .SetOutputDirectory(ArtifactsDirectory);
                     if (Version != null)
                         s = s.SetVersion(Version);
                     return s;

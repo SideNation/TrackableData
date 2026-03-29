@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Logging -->
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0-preview.3.25171.5" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
 
     <!-- Serialization -->
     <PackageVersion Include="MemoryPack" Version="1.21.3" />
