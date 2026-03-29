@@ -37,6 +37,7 @@ class Build : NukeBuild
         "TrackableData.MemoryPack",
         "TrackableData.MongoDB",
         "TrackableData.PostgreSql",
+        "TrackableData.Redis",
     };
 
     Target Clean => _ => _

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Description>Redis Stack (RedisJSON) storage plugin for TrackableData</Description>
+    <Authors>TenY</Authors>
+    <PackageId>TrackableDataV2.Redis</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NRedisStack" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../TrackableData.Core/TrackableData.Core.csproj" />
+  </ItemGroup>
+</Project>

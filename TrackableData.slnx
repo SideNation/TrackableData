@@ -5,6 +5,7 @@
     <Project Path="src/TrackableData.MemoryPack/TrackableData.MemoryPack.csproj" />
     <Project Path="src/TrackableData.MongoDB/TrackableData.MongoDB.csproj" />
     <Project Path="src/TrackableData.PostgreSql/TrackableData.PostgreSql.csproj" />
+    <Project Path="src/TrackableData.Redis/TrackableData.Redis.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/TrackableData.TestUtils/TrackableData.TestUtils.csproj" />
@@ -12,6 +13,7 @@
     <Project Path="tests/TrackableData.MemoryPack.Tests/TrackableData.MemoryPack.Tests.csproj" />
     <Project Path="tests/TrackableData.MongoDB.Tests/TrackableData.MongoDB.Tests.csproj" />
     <Project Path="tests/TrackableData.PostgreSql.Tests/TrackableData.PostgreSql.Tests.csproj" />
+    <Project Path="tests/TrackableData.Redis.Tests/TrackableData.Redis.Tests.csproj" />
     <Project Path="tests/TrackableData.Tests/TrackableData.Tests.csproj" />
   </Folder>
   <Folder Name="/build/">
