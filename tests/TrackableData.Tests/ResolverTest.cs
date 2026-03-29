@@ -84,5 +84,110 @@ namespace TrackableData.Tests
             Assert.True(TrackableResolver.IsTrackableSet(typeof(TrackableSet<int>)));
             Assert.False(TrackableResolver.IsTrackableSet(typeof(TrackableDictionary<int, string>)));
         }
+
+        // --- IsTrackable negative cases ---
+
+        [Fact]
+        public void TestTrackableResolver_IsTrackableDictionary_PlainType_False()
+        {
+            Assert.False(TrackableResolver.IsTrackableDictionary(typeof(string)));
+            Assert.False(TrackableResolver.IsTrackableDictionary(typeof(int)));
+        }
+
+        [Fact]
+        public void TestTrackableResolver_IsTrackableList_PlainType_False()
+        {
+            Assert.False(TrackableResolver.IsTrackableList(typeof(string)));
+        }
+
+        [Fact]
+        public void TestTrackableResolver_IsTrackableSet_PlainType_False()
+        {
+            Assert.False(TrackableResolver.IsTrackableSet(typeof(string)));
+        }
+
+        // --- Generic CreateDefaultTracker ---
+
+        [Fact]
+        public void TestTrackerResolver_GenericGetDefaultTracker_Dictionary()
+        {
+            var type = TrackerResolver.GetDefaultTracker<TrackableDictionary<int, string>>();
+            Assert.Equal(typeof(TrackableDictionaryTracker<int, string>), type);
+        }
+
+        [Fact]
+        public void TestTrackerResolver_GenericCreateDefaultTracker_List()
+        {
+            var tracker = TrackerResolver.CreateDefaultTracker<TrackableList<string>>();
+            Assert.NotNull(tracker);
+            Assert.IsType<TrackableListTracker<string>>(tracker);
+        }
+
+        // --- Cross-type checks ---
+
+        [Fact]
+        public void TestTrackableResolver_IsTrackableDictionary_NotList()
+        {
+            Assert.False(TrackableResolver.IsTrackableDictionary(typeof(TrackableList<string>)));
+            Assert.False(TrackableResolver.IsTrackableDictionary(typeof(TrackableSet<int>)));
+        }
+
+        [Fact]
+        public void TestTrackableResolver_IsTrackableList_NotDictionaryOrSet()
+        {
+            Assert.False(TrackableResolver.IsTrackableList(typeof(TrackableDictionary<int, string>)));
+            Assert.False(TrackableResolver.IsTrackableList(typeof(TrackableSet<int>)));
+        }
+
+        [Fact]
+        public void TestTrackableResolver_IsTrackableSet_NotDictionaryOrList()
+        {
+            Assert.False(TrackableResolver.IsTrackableSet(typeof(TrackableDictionary<int, string>)));
+            Assert.False(TrackableResolver.IsTrackableSet(typeof(TrackableList<string>)));
+        }
+
+        // --- ITrackablePoco / ITrackableContainer type checks ---
+
+        [Fact]
+        public void TestTrackableResolver_IsTrackablePoco_PlainType_False()
+        {
+            Assert.False(TrackableResolver.IsTrackablePoco(typeof(string)));
+            Assert.False(TrackableResolver.IsTrackablePoco(typeof(TrackableDictionary<int, string>)));
+        }
+
+        [Fact]
+        public void TestTrackableResolver_IsTrackableContainer_PlainType_False()
+        {
+            Assert.False(TrackableResolver.IsTrackableContainer(typeof(string)));
+            Assert.False(TrackableResolver.IsTrackableContainer(typeof(TrackableList<string>)));
+        }
+
+        // --- GetPocoType / GetContainerType for non-poco types ---
+
+        [Fact]
+        public void TestTrackableResolver_GetPocoType_NonPoco_ReturnsNull()
+        {
+            Assert.Null(TrackableResolver.GetPocoType(typeof(string)));
+            Assert.Null(TrackableResolver.GetPocoType(typeof(TrackableDictionary<int, string>)));
+        }
+
+        [Fact]
+        public void TestTrackableResolver_GetContainerType_NonContainer_ReturnsNull()
+        {
+            Assert.Null(TrackableResolver.GetContainerType(typeof(string)));
+            Assert.Null(TrackableResolver.GetContainerType(typeof(TrackableList<string>)));
+        }
+
+        [Fact]
+        public void TestTrackableResolver_GetPocoTrackerType_NonPoco_ReturnsNull()
+        {
+            Assert.Null(TrackableResolver.GetPocoTrackerType(typeof(string)));
+        }
+
+        [Fact]
+        public void TestTrackableResolver_GetContainerTrackerType_NonContainer_ReturnsNull()
+        {
+            Assert.Null(TrackableResolver.GetContainerTrackerType(typeof(string)));
+        }
     }
 }
