@@ -39,9 +39,39 @@ TrackableData.Generator/
 ├── TrackableContainerEmitter.cs     # Container 클래스 + Tracker 코드 생성기
 ├── EmitterHelper.cs                 # 공통 유틸리티 (프로퍼티 수집, 타입 판별 등)
 ├── DiagnosticDescriptors.cs         # 컴파일 에러/경고 정의
-├── AnalyzerReleases.Shipped.md      # Roslyn 분석기 릴리스 추적
-└── AnalyzerReleases.Unshipped.md
+├── AnalyzerReleases.Shipped.md      # 릴리스된 진단 규칙 목록
+└── AnalyzerReleases.Unshipped.md    # 아직 릴리스되지 않은 진단 규칙 목록
 ```
+
+### AnalyzerReleases.Shipped.md / Unshipped.md
+
+Roslyn Analyzer/Source Generator 프로젝트에서 **진단 규칙(Diagnostic Rule)의 변경 이력을 추적**하기 위한 파일입니다. `EnforceExtendedAnalyzerRules`가 `true`일 때 이 파일들이 없으면 빌드 경고가 발생합니다.
+
+| 파일 | 역할 |
+|------|------|
+| `Unshipped.md` | 현재 개발 중이며 아직 NuGet에 릴리스되지 않은 규칙 목록 |
+| `Shipped.md` | 이미 NuGet에 릴리스된 규칙 목록 |
+
+**동작 방식:**
+
+1. 새로운 진단 규칙(예: `TRACK001`)을 추가하면 `Unshipped.md`에 기록합니다.
+2. NuGet 패키지를 릴리스하면 `Unshipped.md`의 내용을 `Shipped.md`로 이동합니다.
+3. 이렇게 하면 릴리스 간에 **어떤 규칙이 추가/변경/제거되었는지** 추적할 수 있습니다.
+
+**현재 상태:**
+
+`Shipped.md`는 비어 있고, `Unshipped.md`에 4개의 규칙이 등록되어 있습니다:
+
+```
+Rule ID  | Category                | Severity | Notes
+---------|-------------------------|----------|------
+TRACK001 | TrackableDataGenerator  | Error    | Trackable type must be partial
+TRACK002 | TrackableDataGenerator  | Error    | ITrackablePoco must be an interface
+TRACK003 | TrackableDataGenerator  | Error    | ITrackableContainer must be an interface
+TRACK004 | TrackableDataGenerator  | Error    | Property must have getter and setter
+```
+
+이는 아직 정식 릴리스가 이루어지지 않았음을 의미합니다. 릴리스 시 이 내용을 `Shipped.md`로 옮기면 됩니다.
 
 ---
 
