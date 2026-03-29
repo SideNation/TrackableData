@@ -1,4 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/nuke-build/nuke/master/source/Nuke.Tooling.Generator/schema.json",
-  "Solution": "TrackableData.slnx"
+  "Solution": "TrackableData.slnx",
+  "Version": "1.0.1"
 }

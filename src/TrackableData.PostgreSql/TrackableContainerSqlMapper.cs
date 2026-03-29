@@ -5,16 +5,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-
 namespace TrackableData.PostgreSql
 {
     public class TrackableContainerSqlMapper<T>
         where T : ITrackableContainer<T>
     {
         private readonly ISqlProvider _sqlProvider;
-        private readonly ILogger _logger;
+        private readonly ITrackableLogger _logger;
         private readonly Type _trackableType;
 
         private class PropertyItem
@@ -34,12 +31,12 @@ namespace TrackableData.PostgreSql
         private readonly PropertyItem[] _items;
 
         public TrackableContainerSqlMapper(ISqlProvider sqlProvider, Tuple<string, object[]>[] mapperParameters)
-            : this(sqlProvider, mapperParameters, NullLogger.Instance)
+            : this(sqlProvider, mapperParameters, NullTrackableLogger.Instance)
         {
         }
 
         public TrackableContainerSqlMapper(ISqlProvider sqlProvider, Tuple<string, object[]>[] mapperParameters,
-                                           ILogger logger)
+                                           ITrackableLogger logger)
         {
             _sqlProvider = sqlProvider;
             _logger = logger;

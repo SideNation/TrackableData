@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -13,11 +11,11 @@ namespace TrackableData.MongoDB
     public class TrackableDictionaryMongoDbMapper<TKey, TValue>
         where TKey : notnull
     {
-        private readonly ILogger _logger;
+        private readonly ITrackableLogger _logger;
 
-        public TrackableDictionaryMongoDbMapper() : this(NullLogger.Instance) { }
+        public TrackableDictionaryMongoDbMapper() : this(NullTrackableLogger.Instance) { }
 
-        public TrackableDictionaryMongoDbMapper(ILogger logger)
+        public TrackableDictionaryMongoDbMapper(ITrackableLogger logger)
         {
             _logger = logger;
             TypeMapper.RegisterMap(typeof(TValue));

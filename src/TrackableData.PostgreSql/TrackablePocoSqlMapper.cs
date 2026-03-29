@@ -6,16 +6,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-
 namespace TrackableData.PostgreSql
 {
     public class TrackablePocoSqlMapper<T>
         where T : ITrackablePoco<T>
     {
         private readonly ISqlProvider _sqlProvider;
-        private readonly ILogger _logger;
+        private readonly ITrackableLogger _logger;
         private readonly Type _trackableType;
         private readonly string _tableName;
         private readonly string _tableEscapedName;
@@ -31,14 +28,14 @@ namespace TrackableData.PostgreSql
         public TrackablePocoSqlMapper(ISqlProvider sqlProvider,
                                       string tableName,
                                       ColumnDefinition[] headKeyColumnDefs = null)
-            : this(sqlProvider, tableName, headKeyColumnDefs, NullLogger.Instance)
+            : this(sqlProvider, tableName, headKeyColumnDefs, NullTrackableLogger.Instance)
         {
         }
 
         public TrackablePocoSqlMapper(ISqlProvider sqlProvider,
                                       string tableName,
                                       ColumnDefinition[] headKeyColumnDefs,
-                                      ILogger logger)
+                                      ITrackableLogger logger)
         {
             _sqlProvider = sqlProvider;
             _logger = logger;

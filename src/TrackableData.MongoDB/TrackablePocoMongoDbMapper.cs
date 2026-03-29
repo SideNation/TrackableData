@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -17,11 +15,11 @@ namespace TrackableData.MongoDB
     {
         private readonly Type _trackableType;
         private readonly Dictionary<PropertyInfo, BsonMemberMap> _propertyToMemberMap;
-        private readonly ILogger _logger;
+        private readonly ITrackableLogger _logger;
 
-        public TrackablePocoMongoDbMapper() : this(NullLogger.Instance) { }
+        public TrackablePocoMongoDbMapper() : this(NullTrackableLogger.Instance) { }
 
-        public TrackablePocoMongoDbMapper(ILogger logger)
+        public TrackablePocoMongoDbMapper(ITrackableLogger logger)
         {
             _logger = logger;
             _trackableType = TrackableResolver.GetPocoTrackerType(typeof(T));

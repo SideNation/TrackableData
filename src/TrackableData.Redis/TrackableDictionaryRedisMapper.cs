@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using NRedisStack;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
@@ -12,15 +10,15 @@ namespace TrackableData.Redis
 {
     public class TrackableDictionaryRedisMapper<TKey, TValue>
     {
-        private readonly ILogger _logger;
+        private readonly ITrackableLogger _logger;
         private readonly JsonSerializerOptions _jsonOptions;
 
         public TrackableDictionaryRedisMapper()
-            : this(NullLogger.Instance, null)
+            : this(NullTrackableLogger.Instance, null)
         {
         }
 
-        public TrackableDictionaryRedisMapper(ILogger logger, JsonSerializerOptions jsonOptions = null)
+        public TrackableDictionaryRedisMapper(ITrackableLogger logger, JsonSerializerOptions jsonOptions = null)
         {
             _logger = logger;
             _jsonOptions = jsonOptions ?? new JsonSerializerOptions();

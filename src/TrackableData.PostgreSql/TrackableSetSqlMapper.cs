@@ -5,15 +5,12 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-
 namespace TrackableData.PostgreSql
 {
     public class TrackableSetSqlMapper<T>
     {
         private readonly ISqlProvider _sqlProvider;
-        private readonly ILogger _logger;
+        private readonly ITrackableLogger _logger;
         private readonly string _tableName;
         private readonly string _tableEscapedName;
         private readonly ColumnProperty[] _allColumns;
@@ -25,7 +22,7 @@ namespace TrackableData.PostgreSql
                                      string tableName,
                                      ColumnDefinition valueColumnDef,
                                      ColumnDefinition[] headKeyColumnDefs = null)
-            : this(sqlProvider, tableName, valueColumnDef, headKeyColumnDefs, NullLogger.Instance)
+            : this(sqlProvider, tableName, valueColumnDef, headKeyColumnDefs, NullTrackableLogger.Instance)
         {
         }
 
@@ -33,7 +30,7 @@ namespace TrackableData.PostgreSql
                                      string tableName,
                                      ColumnDefinition valueColumnDef,
                                      ColumnDefinition[] headKeyColumnDefs,
-                                     ILogger logger)
+                                     ITrackableLogger logger)
         {
             _sqlProvider = sqlProvider;
             _logger = logger;

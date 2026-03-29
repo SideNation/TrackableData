@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace TrackableData
 {
@@ -17,11 +15,11 @@ namespace TrackableData
 
         public Dictionary<PropertyInfo, Change> ChangeMap = new Dictionary<PropertyInfo, Change>();
 
-        private readonly ILogger _logger;
+        private readonly ITrackableLogger _logger;
 
-        public TrackablePocoTracker() : this(NullLogger.Instance) { }
+        public TrackablePocoTracker() : this(NullTrackableLogger.Instance) { }
 
-        public TrackablePocoTracker(ILogger logger)
+        public TrackablePocoTracker(ITrackableLogger logger)
         {
             _logger = logger;
         }

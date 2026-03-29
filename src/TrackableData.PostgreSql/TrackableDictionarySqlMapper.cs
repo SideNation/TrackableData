@@ -6,15 +6,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-
 namespace TrackableData.PostgreSql
 {
     public class TrackableDictionarySqlMapper<TKey, TValue>
     {
         private readonly ISqlProvider _sqlProvider;
-        private readonly ILogger _logger;
+        private readonly ITrackableLogger _logger;
         private readonly string _tableName;
         private readonly string _tableEscapedName;
         private readonly ColumnProperty[] _allColumns;
@@ -32,7 +29,7 @@ namespace TrackableData.PostgreSql
                                             string tableName,
                                             ColumnDefinition keyColumnDef,
                                             ColumnDefinition[] headKeyColumnDefs = null)
-            : this(sqlProvider, tableName, keyColumnDef, null, headKeyColumnDefs, NullLogger.Instance)
+            : this(sqlProvider, tableName, keyColumnDef, null, headKeyColumnDefs, NullTrackableLogger.Instance)
         {
         }
 
@@ -41,7 +38,7 @@ namespace TrackableData.PostgreSql
                                             ColumnDefinition keyColumnDef,
                                             ColumnDefinition singleValueColumnDef,
                                             ColumnDefinition[] headKeyColumnDefs)
-            : this(sqlProvider, tableName, keyColumnDef, singleValueColumnDef, headKeyColumnDefs, NullLogger.Instance)
+            : this(sqlProvider, tableName, keyColumnDef, singleValueColumnDef, headKeyColumnDefs, NullTrackableLogger.Instance)
         {
         }
 
@@ -50,7 +47,7 @@ namespace TrackableData.PostgreSql
                                             ColumnDefinition keyColumnDef,
                                             ColumnDefinition singleValueColumnDef,
                                             ColumnDefinition[] headKeyColumnDefs,
-                                            ILogger logger)
+                                            ITrackableLogger logger)
         {
             _sqlProvider = sqlProvider;
             _logger = logger;

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Nuke.Common;
 using Nuke.Common.IO;
@@ -15,7 +16,7 @@ class Build : NukeBuild
 
     [Parameter("NuGet API key for publishing packages")]
     [Secret]
-    readonly string NuGetApiKey;
+    private string NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY");
 
     [Parameter("NuGet source URL - Default is nuget.org")]
     readonly string NuGetSource = "https://api.nuget.org/v3/index.json";
@@ -117,9 +118,12 @@ class Build : NukeBuild
 
     Target Push => _ => _
         .DependsOn(Pack)
-        .Requires(() => NuGetApiKey)
         .Executes(() =>
         {
+            if (string.IsNullOrEmpty(NuGetApiKey))
+                throw new Exception(
+                    "NuGet API key is not set. Provide it via --nuget-api-key parameter or NUGET_API_KEY environment variable.");
+
             ArtifactsDirectory.GlobFiles("*.nupkg")
                 .Where(x => !x.ToString().EndsWith(".symbols.nupkg"))
                 .ForEach(package =>

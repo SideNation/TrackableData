@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace TrackableData
 {
@@ -30,11 +28,11 @@ namespace TrackableData
 
         public List<Change> ChangeList = new List<Change>();
 
-        private readonly ILogger _logger;
+        private readonly ITrackableLogger _logger;
 
-        public TrackableListTracker() : this(NullLogger.Instance) { }
+        public TrackableListTracker() : this(NullTrackableLogger.Instance) { }
 
-        public TrackableListTracker(ILogger logger)
+        public TrackableListTracker(ITrackableLogger logger)
         {
             _logger = logger;
         }
