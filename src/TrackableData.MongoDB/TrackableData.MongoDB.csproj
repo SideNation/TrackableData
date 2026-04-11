@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <Description>MongoDB storage plugin for TrackableData</Description>
+    <Authors>TenY</Authors>
+    <PackageId>TrackableDataV2.MongoDB</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TrackableData.Core\TrackableData.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" />
+  </ItemGroup>
+</Project>

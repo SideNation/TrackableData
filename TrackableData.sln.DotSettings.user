@@ -1,0 +1,11 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7779f80a_002D866f_002D4d40_002Db98e_002D942b3867d757/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestPoco_CreateAndLoad #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Or&gt;
+    &lt;TestAncestor&gt;
+      &lt;TestId&gt;xUnit::3B23A7D9-E92A-C45F-EA0E-AFC70CDDEE22::net10.0::TrackableData.MongoDB.Tests.PocoMongoDbMapperTest.TestPoco_CreateAndLoad&lt;/TestId&gt;
+    &lt;/TestAncestor&gt;
+    &lt;Project Location="/Users/tteogi/work/PrivateProject/TrackableDataNew/TrackableData/tests/TrackableData.PostgreSql.Tests" Presentation="&amp;lt;tests&amp;gt;\&amp;lt;TrackableData.PostgreSql.Tests&amp;gt;" /&gt;
+  &lt;/Or&gt;
+&lt;/SessionState&gt;</s:String>
+	</wpf:ResourceDictionary>

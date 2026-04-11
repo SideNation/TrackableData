@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace TrackableData
 {
@@ -18,11 +16,11 @@ namespace TrackableData
     {
         public Dictionary<T, TrackableSetOperation> ChangeMap = new Dictionary<T, TrackableSetOperation>();
 
-        private readonly ILogger _logger;
+        private readonly ITrackableLogger _logger;
 
-        public TrackableSetTracker() : this(NullLogger.Instance) { }
+        public TrackableSetTracker() : this(NullTrackableLogger.Instance) { }
 
-        public TrackableSetTracker(ILogger logger)
+        public TrackableSetTracker(ITrackableLogger logger)
         {
             _logger = logger;
         }
