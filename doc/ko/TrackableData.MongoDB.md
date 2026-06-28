@@ -11,7 +11,7 @@
                     OutputItemType="Analyzer"
                     ReferenceOutputAssembly="false" />
   <PackageReference Include="TrackableDataV2.MongoDB" Version="1.0.0" />
-  <PackageReference Include="MongoDB.Driver" Version="3.7.1" />
+  <PackageReference Include="MongoDB.Driver" Version="3.9.0" />
 </ItemGroup>
 ```
 
@@ -56,6 +56,33 @@ Console.WriteLine(loaded.Name);
 ```
 
 마지막 인자인 `"player:1"`은 문서의 `_id`로 사용됩니다.
+
+## POCO Identity
+
+도메인 프로퍼티를 MongoDB `_id`로 저장해야 하면 `[TrackableProperty("mongodb.identity")]`를 붙입니다.
+
+```csharp
+public interface IPlayerAccount : ITrackablePoco<IPlayerAccount>
+{
+    [TrackableProperty("mongodb.identity")]
+    long AccountId { get; set; }
+
+    string Name { get; set; }
+}
+
+var mapper = new TrackablePocoMongoDbMapper<IPlayerAccount>();
+
+var account = new TrackablePlayerAccount
+{
+    AccountId = UniqueInt64Id.GenerateNewId(),
+    Name = "Alice"
+};
+
+await mapper.CreateAsync(collection, account);
+var loaded = await mapper.LoadAsync(collection, account.AccountId);
+```
+
+POCO에 `ObjectId Id` 같은 `Id` 프로퍼티가 있으면 key 없는 `CreateAsync(collection, value)`에서 MongoDB가 `_id`를 생성하고 생성된 값을 `Id`에 다시 써 줍니다.
 
 ## 변경분만 저장
 
@@ -150,11 +177,30 @@ await containerMapper.CreateAsync(collection, userData, "player:1");
 var loadedUserData = await containerMapper.LoadAsync(collection, "player:1");
 ```
 
+로드한 container의 변경분을 저장할 때는 `SetDefaultTracker()`를 사용합니다.
+
+```csharp
+loadedUserData.SetDefaultTracker();
+loadedUserData.Items[1] = new ItemValue { Name = "Long Sword", Level = 12 };
+loadedUserData.History.Add(new ItemValue { Name = "QuestReward", Level = 2 });
+
+await containerMapper.SaveAsync(collection, loadedUserData.Tracker, "player:1");
+loadedUserData.ClearTrackerDeep();
+```
+
+MongoDB container 저장 흐름에서는 `SetDefaultTrackerDeep()`을 피합니다. 생성된 container tracker가 하위 tracker를 소유하므로 deep variant를 호출하면 container tracker가 변경 수집에 쓰는 하위 tracker가 교체될 수 있습니다.
+
+저장하지 않을 container 프로퍼티에는 `[TrackableProperty("mongodb.ignore")]`를 붙입니다.
+
 ## 삭제
 
 ```csharp
 var deletedCount = await mapper.DeleteAsync(collection, "player:1");
 ```
+
+## Integration Test 설정
+
+MongoDB integration test는 `MONGODB_CONNECTION_STRING`을 먼저 환경변수에서 읽고, 없으면 `.env`에서 읽습니다. 값이 없으면 SSH tunnel/local `mongodb://localhost:27017`로 fallback하며, 임시 `trackable_test_<guid>` 데이터베이스를 만들고 cleanup 시 drop합니다.
 
 ## 주의할 점
 

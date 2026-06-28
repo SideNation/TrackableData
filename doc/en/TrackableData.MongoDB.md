@@ -11,7 +11,7 @@
                     OutputItemType="Analyzer"
                     ReferenceOutputAssembly="false" />
   <PackageReference Include="TrackableDataV2.MongoDB" Version="1.0.0" />
-  <PackageReference Include="MongoDB.Driver" Version="3.7.1" />
+  <PackageReference Include="MongoDB.Driver" Version="3.9.0" />
 </ItemGroup>
 ```
 
@@ -56,6 +56,33 @@ Console.WriteLine(loaded.Name);
 ```
 
 The final argument, `"player:1"`, is used as the document `_id`.
+
+## POCO Identity
+
+Mark a POCO property with `[TrackableProperty("mongodb.identity")]` when a domain property should be serialized as MongoDB `_id`.
+
+```csharp
+public interface IPlayerAccount : ITrackablePoco<IPlayerAccount>
+{
+    [TrackableProperty("mongodb.identity")]
+    long AccountId { get; set; }
+
+    string Name { get; set; }
+}
+
+var mapper = new TrackablePocoMongoDbMapper<IPlayerAccount>();
+
+var account = new TrackablePlayerAccount
+{
+    AccountId = UniqueInt64Id.GenerateNewId(),
+    Name = "Alice"
+};
+
+await mapper.CreateAsync(collection, account);
+var loaded = await mapper.LoadAsync(collection, account.AccountId);
+```
+
+When a POCO has an `Id` property such as `ObjectId Id`, keyless `CreateAsync(collection, value)` lets MongoDB generate `_id` and writes the generated value back to `Id`.
 
 ## Save Only Changes
 
@@ -150,11 +177,30 @@ await containerMapper.CreateAsync(collection, userData, "player:1");
 var loadedUserData = await containerMapper.LoadAsync(collection, "player:1");
 ```
 
+Use `SetDefaultTracker()` when you want to save changes from a loaded container.
+
+```csharp
+loadedUserData.SetDefaultTracker();
+loadedUserData.Items[1] = new ItemValue { Name = "Long Sword", Level = 12 };
+loadedUserData.History.Add(new ItemValue { Name = "QuestReward", Level = 2 });
+
+await containerMapper.SaveAsync(collection, loadedUserData.Tracker, "player:1");
+loadedUserData.ClearTrackerDeep();
+```
+
+Avoid `SetDefaultTrackerDeep()` in this MongoDB container save flow because the generated container tracker owns the child trackers. Calling the deep variant can replace the child trackers that the container tracker uses to collect changes.
+
+Use `[TrackableProperty("mongodb.ignore")]` on a container property when that property should not be persisted.
+
 ## Delete
 
 ```csharp
 var deletedCount = await mapper.DeleteAsync(collection, "player:1");
 ```
+
+## Integration Test Configuration
+
+MongoDB integration tests read `MONGODB_CONNECTION_STRING` from the environment first, then from `.env`. If the value is not present, the test fixture falls back to an SSH tunnel/local `mongodb://localhost:27017`, creates a temporary `trackable_test_<guid>` database, and drops it during cleanup.
 
 ## Notes
 

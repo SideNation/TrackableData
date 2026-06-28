@@ -25,6 +25,24 @@ var settings = TrackableJsonSerializerSettings.Create();
 
 이 설정은 `TrackerJsonConverter`를 등록합니다. 이 converter는 실제 tracker 타입에 맞춰 POCO, Dictionary, List, Set, Container converter로 위임합니다.
 
+## AOT / Unity IL2CPP 설정
+
+`TrackableJsonSerializerSettings.Create()`는 일반 런타임에서 편리하게 쓰는 설정입니다. `TrackerJsonConverter`가 런타임 tracker 타입을 reflection으로 확인해 알맞은 converter로 위임합니다. Unity IL2CPP나 다른 AOT 런타임에서는 `CreateForAot()`를 사용하고 직렬화할 구체 tracker converter를 모두 등록합니다.
+
+```csharp
+using Newtonsoft.Json;
+using TrackableData.Json;
+
+var settings = TrackableJsonSerializerSettings.CreateForAot()
+    .AddPocoTrackerConverter<IPlayer>()
+    .AddDictionaryTrackerConverter<int, string>()
+    .AddListTrackerConverter<string>()
+    .AddSetTrackerConverter<int>()
+    .AddContainerTrackerConverter();
+```
+
+AOT 경로에서 JSON patch helper를 사용할 때도 같은 settings를 넘깁니다.
+
 ## Tracker 직렬화
 
 ```csharp
@@ -114,4 +132,4 @@ tracker.ApplyTo((IUserData)target);
 - JSON 형식은 변경분을 다른 trackable 객체에 적용하는 용도에 맞춰져 있습니다.
 - 변경 적용만 할 때는 remove operation에 old value가 필요하지 않습니다.
 - 생성된 container는 하위 tracker가 container tracker에 연결되어 있다면 container tracker를 직접 직렬화합니다.
-- 바이너리 직렬화나 AOT 환경의 명시적 formatter 등록이 필요하면 MemoryPack 플러그인을 사용합니다.
+- Unity IL2CPP/AOT 환경에서는 `CreateForAot()`와 명시적 converter 등록을 사용합니다. 바이너리 직렬화가 필요하면 MemoryPack 플러그인을 사용합니다.

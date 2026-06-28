@@ -11,7 +11,7 @@
                     OutputItemType="Analyzer"
                     ReferenceOutputAssembly="false" />
   <PackageReference Include="TrackableDataV2.Redis" Version="1.0.0" />
-  <PackageReference Include="NRedisStack" Version="1.3.0" />
+  <PackageReference Include="NRedisStack" Version="1.6.0" />
 </ItemGroup>
 ```
 
@@ -131,11 +131,26 @@ await mapper.CreateAsync(db, userData, "user:1");
 
 var loaded = await mapper.LoadAsync(db, "user:1");
 
-loaded.SetDefaultTrackerDeep();
+loaded.SetDefaultTracker();
 loaded.Inventory[1001] = "Long Sword";
 loaded.Logs.Add("quest");
 
 await mapper.SaveAsync(db, loaded.Tracker, "user:1");
+```
+
+로드한 container에는 `SetDefaultTracker()`를 사용합니다. 생성된 container tracker가 `TrackableContainerRedisMapper<T>.SaveAsync`에서 사용하는 하위 tracker를 소유하므로 `SetDefaultTrackerDeep()`을 호출하면 그 하위 tracker가 교체될 수 있습니다.
+
+POCO 프로퍼티에는 `redis.field:`와 `redis.ignore`를 사용할 수 있습니다. Container 프로퍼티에는 `redis.keysuffix:`와 `redis.ignore`를 사용할 수 있습니다.
+
+```csharp
+public interface IUserData : ITrackableContainer<IUserData>
+{
+    [TrackableProperty("redis.keysuffix:bag")]
+    TrackableDictionary<int, string> Inventory { get; set; }
+
+    [TrackableProperty("redis.ignore")]
+    TrackableSet<int> RuntimeOnlyAchievements { get; set; }
+}
 ```
 
 ## 삭제
@@ -176,6 +191,10 @@ var mapper = new TrackablePocoRedisMapper<IPlayer>(
     NullTrackableLogger.Instance,
     options);
 ```
+
+## Integration Test 설정
+
+Redis integration test는 `REDIS_CONNECTION_STRING`을 먼저 환경변수에서 읽고, 없으면 `.env`에서 읽습니다. 일반 StackExchange.Redis connection string과 `redis://`/`rediss://` URL을 지원합니다. 값이 없으면 SSH tunnel/local `localhost:6379`로 fallback하며, 임시 `test:<guid>:` prefix 아래의 key를 cleanup합니다.
 
 ## 주의할 점
 

@@ -25,6 +25,24 @@ var settings = TrackableJsonSerializerSettings.Create();
 
 The settings register `TrackerJsonConverter`, which dispatches to the concrete POCO, Dictionary, List, Set, or Container tracker converter.
 
+## AOT / Unity IL2CPP Setup
+
+`TrackableJsonSerializerSettings.Create()` is convenient for normal runtimes because `TrackerJsonConverter` dispatches by reflecting the runtime tracker type. For Unity IL2CPP or other AOT runtimes, use `CreateForAot()` and register every concrete tracker converter you serialize.
+
+```csharp
+using Newtonsoft.Json;
+using TrackableData.Json;
+
+var settings = TrackableJsonSerializerSettings.CreateForAot()
+    .AddPocoTrackerConverter<IPlayer>()
+    .AddDictionaryTrackerConverter<int, string>()
+    .AddListTrackerConverter<string>()
+    .AddSetTrackerConverter<int>()
+    .AddContainerTrackerConverter();
+```
+
+Pass the same settings to the JSON patch helpers when using the AOT path.
+
 ## Serialize a Tracker
 
 ```csharp
@@ -114,4 +132,4 @@ tracker.ApplyTo((IUserData)target);
 - The JSON format is optimized for applying changes to another trackable object.
 - Remove operations do not need old values when applying changes to a target object.
 - For generated containers, serialize the container tracker directly when the child trackers are already connected through the container tracker.
-- Use MemoryPack when you need binary serialization or explicit formatter registration for AOT scenarios.
+- Use `CreateForAot()` plus explicit converter registration for Unity IL2CPP/AOT scenarios. Use MemoryPack when you need binary serialization.

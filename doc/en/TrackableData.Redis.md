@@ -11,7 +11,7 @@
                     OutputItemType="Analyzer"
                     ReferenceOutputAssembly="false" />
   <PackageReference Include="TrackableDataV2.Redis" Version="1.0.0" />
-  <PackageReference Include="NRedisStack" Version="1.3.0" />
+  <PackageReference Include="NRedisStack" Version="1.6.0" />
 </ItemGroup>
 ```
 
@@ -131,11 +131,26 @@ await mapper.CreateAsync(db, userData, "user:1");
 
 var loaded = await mapper.LoadAsync(db, "user:1");
 
-loaded.SetDefaultTrackerDeep();
+loaded.SetDefaultTracker();
 loaded.Inventory[1001] = "Long Sword";
 loaded.Logs.Add("quest");
 
 await mapper.SaveAsync(db, loaded.Tracker, "user:1");
+```
+
+Use `SetDefaultTracker()` for loaded containers. The generated container tracker owns the child trackers used by `TrackableContainerRedisMapper<T>.SaveAsync`; calling `SetDefaultTrackerDeep()` can replace those child trackers.
+
+POCO properties can use `redis.field:` and `redis.ignore`. Container properties can use `redis.keysuffix:` and `redis.ignore`.
+
+```csharp
+public interface IUserData : ITrackableContainer<IUserData>
+{
+    [TrackableProperty("redis.keysuffix:bag")]
+    TrackableDictionary<int, string> Inventory { get; set; }
+
+    [TrackableProperty("redis.ignore")]
+    TrackableSet<int> RuntimeOnlyAchievements { get; set; }
+}
 ```
 
 ## Delete
@@ -176,6 +191,10 @@ var mapper = new TrackablePocoRedisMapper<IPlayer>(
     NullTrackableLogger.Instance,
     options);
 ```
+
+## Integration Test Configuration
+
+Redis integration tests read `REDIS_CONNECTION_STRING` from the environment first, then from `.env`. Plain StackExchange.Redis connection strings and `redis://`/`rediss://` URLs are supported. If the value is not present, the fixture falls back to an SSH tunnel/local `localhost:6379` and cleans keys under a temporary `test:<guid>:` prefix.
 
 ## Notes
 

@@ -8,7 +8,7 @@
 <ItemGroup>
   <PackageReference Include="TrackableDataV2.Core" Version="1.0.0" />
   <PackageReference Include="TrackableDataV2.MemoryPack" Version="1.0.0" />
-  <PackageReference Include="MemoryPack" Version="1.21.3" />
+  <PackageReference Include="MemoryPack" Version="1.21.4" />
 </ItemGroup>
 ```
 

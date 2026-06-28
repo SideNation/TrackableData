@@ -8,11 +8,11 @@
 |------|------|
 | [TrackableData.Core.md](TrackableData.Core.md) | 기본 설정, POCO/Dictionary/List/Set 변경 추적 |
 | [TrackableData.Generator.md](TrackableData.Generator.md) | Source Generator 설정과 생성 규칙 |
-| [TrackableData.Json.md](TrackableData.Json.md) | Newtonsoft.Json tracker 직렬화와 JSON patch 사용 |
+| [TrackableData.Json.md](TrackableData.Json.md) | Newtonsoft.Json tracker 직렬화, AOT converter 등록, JSON patch 사용 |
 | [TrackableData.MemoryPack.md](TrackableData.MemoryPack.md) | MemoryPack 직렬화 formatter 등록과 사용 |
-| [TrackableData.MongoDB.md](TrackableData.MongoDB.md) | MongoDB 저장/로드/부분 저장과 BSON 값 매핑 |
+| [TrackableData.MongoDB.md](TrackableData.MongoDB.md) | MongoDB 저장/로드/부분 저장, `_id` 매핑, BSON 값 매핑 |
 | [TrackableData.PostgreSql.md](TrackableData.PostgreSql.md) | PostgreSQL 테이블 매핑과 저장/로드 |
-| [TrackableData.Redis.md](TrackableData.Redis.md) | Redis Stack RedisJSON 저장/로드/부분 저장과 JSON 옵션 |
+| [TrackableData.Redis.md](TrackableData.Redis.md) | Redis Stack RedisJSON 저장/로드/부분 저장, key 매핑, JSON 옵션 |
 
 ## 기본 패키지 구성
 

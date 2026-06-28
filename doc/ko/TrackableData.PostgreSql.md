@@ -11,7 +11,7 @@
                     OutputItemType="Analyzer"
                     ReferenceOutputAssembly="false" />
   <PackageReference Include="TrackableDataV2.PostgreSql" Version="1.0.0" />
-  <PackageReference Include="Npgsql" Version="9.0.3" />
+  <PackageReference Include="Npgsql" Version="10.0.3" />
 </ItemGroup>
 ```
 
