@@ -22,5 +22,8 @@
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     <!-- Build -->
     <PackageVersion Include="Nuke.Common" Version="10.1.0" />
+    <!-- Transitive vulnerability overrides -->
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.9" />
+    <PackageVersion Include="NuGet.Packaging" Version="7.6.0" />
   </ItemGroup>
 </Project>

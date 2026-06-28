@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Xml.Linq;
 using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
@@ -102,19 +103,33 @@ class Build : NukeBuild
         {
             ArtifactsDirectory.CreateOrCleanDirectory();
 
+            var buildPropsPath = RootDirectory / "Directory.Build.props";
+            var doc = XDocument.Load(buildPropsPath);
+            var versionElement = doc.Descendants("Version").First();
+
+            string packVersion;
+            if (Version != null)
+            {
+                packVersion = Version;
+            }
+            else
+            {
+                var parts = versionElement.Value.Split('.');
+                parts[2] = (int.Parse(parts[2]) + 1).ToString();
+                packVersion = string.Join(".", parts);
+            }
+
+            versionElement.Value = packVersion;
+            doc.Save(buildPropsPath);
+
             foreach (var name in PackableProjects)
             {
                 var projectPath = SourceDirectory / name / (name + ".csproj");
-                DotNetPack(s =>
-                {
-                    s = s
-                        .SetProject(projectPath)
-                        .SetConfiguration("Release")
-                        .SetOutputDirectory(ArtifactsDirectory);
-                    if (Version != null)
-                        s = s.SetVersion(Version);
-                    return s;
-                });
+                DotNetPack(s => s
+                    .SetProject(projectPath)
+                    .SetConfiguration("Release")
+                    .SetOutputDirectory(ArtifactsDirectory)
+                    .SetVersion(packVersion));
             }
         });
 
