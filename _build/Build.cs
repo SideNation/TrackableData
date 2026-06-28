@@ -35,6 +35,7 @@ class Build : NukeBuild
     {
         "TrackableData.Core",
         "TrackableData.Generator",
+        "TrackableData.Json",
         "TrackableData.MemoryPack",
         "TrackableData.MongoDB",
         "TrackableData.PostgreSql",
@@ -78,6 +79,7 @@ class Build : NukeBuild
                 .EnableNoBuild()
                 .SetFilter("FullyQualifiedName~TrackableData.Tests" +
                            "|FullyQualifiedName~Generator.Tests" +
+                           "|FullyQualifiedName~Json.Tests" +
                            "|FullyQualifiedName~MemoryPack.Tests"));
         });
 

@@ -9,7 +9,7 @@ Property-level change tracking for POCO, Dictionary, List, Set with storage plug
 - **Trackable/Tracker separation** - Trackable objects hold state, Trackers record changes
 - **Roslyn Source Generator** - No manual boilerplate, IDE IntelliSense support
 - **Storage Plugins** - MongoDB, PostgreSQL, Redis (RedisJSON)
-- **Serialization** - MemoryPack support for high-performance binary serialization
+- **Serialization** - Newtonsoft.Json support for JSON patches and MemoryPack support for high-performance binary serialization
 - **ILogger** - Microsoft.Extensions.Logging integration throughout
 - **Unity compatible** - Core, MemoryPack, Generator target netstandard2.1 with C# 9.0
 
@@ -19,6 +19,7 @@ Property-level change tracking for POCO, Dictionary, List, Set with storage plug
 |---------|-------------|
 | `TrackableDataV2.Core` | Core interfaces and trackable collections |
 | `TrackableDataV2.Generator` | Roslyn Source Generator for trackable POCO/Container |
+| `TrackableDataV2.Json` | Newtonsoft.Json tracker serialization and JSON patch helpers |
 | `TrackableDataV2.MemoryPack` | MemoryPack serialization formatters |
 | `TrackableDataV2.MongoDB` | MongoDB storage mapper |
 | `TrackableDataV2.PostgreSql` | PostgreSQL storage mapper |
@@ -160,6 +161,7 @@ The generator creates `TrackableUserData` with per-property trackers. Container 
 src/
   TrackableData.Core/          net10.0 + netstandard2.1
   TrackableData.Generator/     netstandard2.1 (Roslyn Source Generator)
+  TrackableData.Json/          net10.0 + netstandard2.1
   TrackableData.MemoryPack/    net10.0 + netstandard2.1
   TrackableData.MongoDB/       net10.0
   TrackableData.PostgreSql/    net10.0

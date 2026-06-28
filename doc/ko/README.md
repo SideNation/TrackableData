@@ -8,6 +8,7 @@
 |------|------|
 | [TrackableData.Core.md](TrackableData.Core.md) | 기본 설정, POCO/Dictionary/List/Set 변경 추적 |
 | [TrackableData.Generator.md](TrackableData.Generator.md) | Source Generator 설정과 생성 규칙 |
+| [TrackableData.Json.md](TrackableData.Json.md) | Newtonsoft.Json tracker 직렬화와 JSON patch 사용 |
 | [TrackableData.MemoryPack.md](TrackableData.MemoryPack.md) | MemoryPack 직렬화 formatter 등록과 사용 |
 | [TrackableData.MongoDB.md](TrackableData.MongoDB.md) | MongoDB 저장/로드/부분 저장 |
 | [TrackableData.PostgreSql.md](TrackableData.PostgreSql.md) | PostgreSQL 테이블 매핑과 저장/로드 |
@@ -30,6 +31,7 @@
 
 ```xml
 <PackageReference Include="TrackableDataV2.MemoryPack" Version="1.0.0" />
+<PackageReference Include="TrackableDataV2.Json" Version="1.0.0" />
 <PackageReference Include="TrackableDataV2.MongoDB" Version="1.0.0" />
 <PackageReference Include="TrackableDataV2.PostgreSql" Version="1.0.0" />
 <PackageReference Include="TrackableDataV2.Redis" Version="1.0.0" />

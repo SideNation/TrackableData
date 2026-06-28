@@ -8,6 +8,7 @@ This folder documents how to use TrackableData V2 by plugin.
 |----------|----------|
 | [TrackableData.Core.md](TrackableData.Core.md) | Basic setup and POCO/Dictionary/List/Set change tracking |
 | [TrackableData.Generator.md](TrackableData.Generator.md) | Source Generator setup and generation rules |
+| [TrackableData.Json.md](TrackableData.Json.md) | Newtonsoft.Json tracker serialization and JSON patch usage |
 | [TrackableData.MemoryPack.md](TrackableData.MemoryPack.md) | MemoryPack formatter registration and usage |
 | [TrackableData.MongoDB.md](TrackableData.MongoDB.md) | MongoDB create/load/partial save |
 | [TrackableData.PostgreSql.md](TrackableData.PostgreSql.md) | PostgreSQL table mapping and persistence |
@@ -30,6 +31,7 @@ Add storage or serialization plugins only when needed.
 
 ```xml
 <PackageReference Include="TrackableDataV2.MemoryPack" Version="1.0.0" />
+<PackageReference Include="TrackableDataV2.Json" Version="1.0.0" />
 <PackageReference Include="TrackableDataV2.MongoDB" Version="1.0.0" />
 <PackageReference Include="TrackableDataV2.PostgreSql" Version="1.0.0" />
 <PackageReference Include="TrackableDataV2.Redis" Version="1.0.0" />

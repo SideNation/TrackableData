@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
+    <LangVersion>9.0</LangVersion>
+    <Description>Newtonsoft.Json serialization support for TrackableData tracker types</Description>
+    <Authors>TenY</Authors>
+    <PackageId>TrackableDataV2.Json</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TrackableData.Core\TrackableData.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" />
+  </ItemGroup>
+</Project>

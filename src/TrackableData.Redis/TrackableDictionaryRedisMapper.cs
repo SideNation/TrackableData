@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-using NRedisStack;
 using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 
