@@ -19,6 +19,42 @@ namespace TrackableData.MongoDB
             _logger = logger;
         }
 
+        public BsonArray ConvertToBsonArray(ICollection<T> set)
+        {
+            return new BsonArray(set.Select(v => BsonValueMapper.ToBsonValue(v)));
+        }
+
+        public TrackableSet<T> ConvertToTrackableSet(BsonArray bson)
+        {
+            var set = new TrackableSet<T>();
+            foreach (var item in bson)
+                set.Add(BsonValueMapper.ToValue<T>(item));
+            return set;
+        }
+
+        public List<UpdateDefinition<BsonDocument>> BuildUpdatesForSave(
+            TrackableSetTracker<T> tracker, params object[] keyValues)
+        {
+            var valuePath = DocumentHelper.ToDotPath(keyValues);
+            var updates = new List<UpdateDefinition<BsonDocument>>();
+
+            var addValues = tracker.AddValues.ToList();
+            if (addValues.Count > 0)
+            {
+                updates.Add(Builders<BsonDocument>.Update.AddToSetEach(valuePath,
+                    addValues.Select(v => BsonValueMapper.ToBsonValue(v))));
+            }
+
+            var removeValues = tracker.RemoveValues.ToList();
+            if (removeValues.Count > 0)
+            {
+                updates.Add(Builders<BsonDocument>.Update.PullAll(valuePath,
+                    removeValues.Select(v => BsonValueMapper.ToBsonValue(v))));
+            }
+
+            return updates;
+        }
+
         public async Task CreateAsync(IMongoCollection<BsonDocument> collection, ICollection<T> set,
                                       params object[] keyValues)
         {
@@ -28,7 +64,7 @@ namespace TrackableData.MongoDB
             _logger.LogDebug("TrackableSetMongoDbMapper<{Type}>.CreateAsync", typeof(T).Name);
 
             var valuePath = DocumentHelper.ToDotPath(keyValues.Skip(1));
-            var bsonArray = new BsonArray(set.Select(v => BsonValue.Create(v)));
+            var bsonArray = ConvertToBsonArray(set);
             await collection.UpdateOneAsync(
                 Builders<BsonDocument>.Filter.Eq("_id", keyValues[0]),
                 Builders<BsonDocument>.Update.Set(valuePath, bsonArray),
@@ -58,12 +94,7 @@ namespace TrackableData.MongoDB
             if (value == null || !value.IsBsonArray)
                 return null;
 
-            var set = new TrackableSet<T>();
-            foreach (var item in value.AsBsonArray)
-            {
-                set.Add((T)Convert.ChangeType(item, typeof(T)));
-            }
-            return set;
+            return ConvertToTrackableSet(value.AsBsonArray);
         }
 
         public async Task SaveAsync(IMongoCollection<BsonDocument> collection,
@@ -79,21 +110,10 @@ namespace TrackableData.MongoDB
             _logger.LogDebug("TrackableSetMongoDbMapper<{Type}>.SaveAsync: {Count} changes",
                 typeof(T).Name, tracker.ChangeMap.Count);
 
-            var valuePath = DocumentHelper.ToDotPath(keyValues.Skip(1));
             var filter = Builders<BsonDocument>.Filter.Eq("_id", keyValues[0]);
-
-            var addValues = tracker.AddValues.ToList();
-            if (addValues.Count > 0)
+            foreach (var update in BuildUpdatesForSave(tracker, keyValues.Skip(1).ToArray()))
             {
-                await collection.UpdateOneAsync(filter,
-                    Builders<BsonDocument>.Update.AddToSetEach(valuePath, addValues.Select(v => BsonValue.Create(v))));
-            }
-
-            var removeValues = tracker.RemoveValues.ToList();
-            if (removeValues.Count > 0)
-            {
-                await collection.UpdateOneAsync(filter,
-                    Builders<BsonDocument>.Update.PullAll(valuePath, removeValues.Select(v => BsonValue.Create(v))));
+                await collection.UpdateOneAsync(filter, update);
             }
         }
     }

@@ -14,6 +14,7 @@ namespace TrackableData.MongoDB
         where T : ITrackablePoco<T>
     {
         private readonly Type _trackableType;
+        private readonly PropertyInfo _idProperty;
         private readonly Dictionary<PropertyInfo, BsonMemberMap> _propertyToMemberMap;
         private readonly ITrackableLogger _logger;
 
@@ -30,6 +31,9 @@ namespace TrackableData.MongoDB
             var classMap = BsonClassMap.LookupClassMap(_trackableType);
             foreach (var property in typeof(T).GetProperties())
             {
+                if (property.Name.ToLower() == "id")
+                    _idProperty = property;
+
                 var member = classMap.AllMemberMaps.FirstOrDefault(m => m.MemberInfo.Name == property.Name);
                 if (member != null)
                     _propertyToMemberMap[property] = member;
@@ -103,6 +107,9 @@ namespace TrackableData.MongoDB
             {
                 var bson = value.ToBsonDocument(_trackableType);
                 await collection.InsertOneAsync(bson);
+                // when the poco owns its id, write the (possibly auto-generated) _id back to it
+                if (_idProperty != null)
+                    _idProperty.SetValue(value, ConvertId(bson["_id"], _idProperty.PropertyType));
             }
             else if (keyValues.Length == 1)
             {
@@ -119,6 +126,14 @@ namespace TrackableData.MongoDB
                     Builders<BsonDocument>.Update.Set(setPath, bson),
                     new UpdateOptions { IsUpsert = true });
             }
+        }
+
+        private static object ConvertId(BsonValue id, Type targetType)
+        {
+            var value = BsonTypeMapper.MapToDotNetValue(id);
+            return value != null && value.GetType() == targetType
+                ? value
+                : Convert.ChangeType(value, targetType);
         }
 
         public Task<int> DeleteAsync(IMongoCollection<BsonDocument> collection, params object[] keyValues)

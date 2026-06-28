@@ -23,12 +23,49 @@ namespace TrackableData.Generator
                 {
                     properties.Add(new PropertyInfo(
                         prop.Name,
-                        prop.Type.ToDisplayString(),
+                        // fully-qualified (global::) so emitted type names never collide with an
+                        // enclosing namespace (e.g. MongoDB.Bson vs the TrackableData.MongoDB plugin)
+                        prop.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                         prop.Type,
                         IsTrackableType(prop.Type)));
                 }
             }
             return properties;
+        }
+
+        // Robust match for a well-known generic TrackableData interface.
+        // OriginalDefinition.ToDisplayString() renders type parameters as "<T>" (not metadata "`1"),
+        // so compare by simple name + arity + namespace instead.
+        private static bool IsWellKnownGeneric(INamedTypeSymbol iface, string name)
+        {
+            var def = iface.OriginalDefinition;
+            return def.Name == name
+                && def.TypeParameters.Length >= 1
+                && def.ContainingNamespace != null
+                && def.ContainingNamespace.ToDisplayString() == "TrackableData";
+        }
+
+        public static bool IsTrackablePoco(ITypeSymbol type)
+        {
+            if (type is INamedTypeSymbol namedType)
+            {
+                foreach (var iface in namedType.AllInterfaces)
+                {
+                    if (IsWellKnownGeneric(iface, "ITrackablePoco"))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        // A poco container member is declared as its interface (IXxx); the backing field needs
+        // the concrete generated trackable (TrackableXxx), which lives in the same namespace.
+        public static string GetConcreteTrackableTypeName(ITypeSymbol typeSymbol)
+        {
+            var ns = typeSymbol.ContainingNamespace;
+            var nsName = ns == null || ns.IsGlobalNamespace ? "" : ns.ToDisplayString();
+            var name = "Trackable" + typeSymbol.Name.Substring(1);
+            return string.IsNullOrEmpty(nsName) ? $"global::{name}" : $"global::{nsName}.{name}";
         }
 
         public static bool IsTrackableType(ITypeSymbol type)
@@ -41,10 +78,9 @@ namespace TrackableData.Generator
             {
                 foreach (var iface in namedType.AllInterfaces)
                 {
-                    var ifaceName = iface.OriginalDefinition.ToDisplayString();
-                    if (ifaceName == "TrackableData.ITrackable`1" ||
-                        ifaceName == "TrackableData.ITrackablePoco`1" ||
-                        ifaceName == "TrackableData.ITrackableContainer`1")
+                    if (IsWellKnownGeneric(iface, "ITrackable") ||
+                        IsWellKnownGeneric(iface, "ITrackablePoco") ||
+                        IsWellKnownGeneric(iface, "ITrackableContainer"))
                         return true;
                 }
             }
@@ -72,18 +108,18 @@ namespace TrackableData.Generator
             {
                 foreach (var iface in nt.AllInterfaces)
                 {
-                    if (iface.OriginalDefinition.ToDisplayString() == "TrackableData.ITrackablePoco`1")
+                    if (IsWellKnownGeneric(iface, "ITrackablePoco"))
                     {
-                        var pocoType = iface.TypeArguments[0].ToDisplayString();
-                        return $"TrackableData.TrackablePocoTracker<{pocoType}>";
+                        var pocoType = iface.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                        return $"global::TrackableData.TrackablePocoTracker<{pocoType}>";
                     }
-                    if (iface.OriginalDefinition.ToDisplayString() == "TrackableData.ITrackableContainer`1")
+                    if (IsWellKnownGeneric(iface, "ITrackableContainer"))
                     {
                         // Container tracker is named Trackable{Name}Tracker
                         var containerType = iface.TypeArguments[0];
                         var trackerName = "Trackable" + containerType.Name.Substring(1) + "Tracker";
                         var ns = GetFullNamespace((INamedTypeSymbol)containerType);
-                        return string.IsNullOrEmpty(ns) ? trackerName : $"{ns}.{trackerName}";
+                        return string.IsNullOrEmpty(ns) ? $"global::{trackerName}" : $"global::{ns}.{trackerName}";
                     }
                 }
             }

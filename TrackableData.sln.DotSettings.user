@@ -1,11 +1,27 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7779f80a_002D866f_002D4d40_002Db98e_002D942b3867d757/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestPoco_CreateAndLoad #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Or&gt;
-    &lt;TestAncestor&gt;
-      &lt;TestId&gt;xUnit::3B23A7D9-E92A-C45F-EA0E-AFC70CDDEE22::net10.0::TrackableData.MongoDB.Tests.PocoMongoDbMapperTest.TestPoco_CreateAndLoad&lt;/TestId&gt;
-    &lt;/TestAncestor&gt;
-    &lt;Project Location="/Users/tteogi/work/PrivateProject/TrackableDataNew/TrackableData/tests/TrackableData.PostgreSql.Tests" Presentation="&amp;lt;tests&amp;gt;\&amp;lt;TrackableData.PostgreSql.Tests&amp;gt;" /&gt;
-  &lt;/Or&gt;
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AConvert_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003FLibrary_003FApplication_0020Support_003FJetBrains_003FRider2026_002E1_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003F1de6429ecd904d569c800ba98c6da427104ab38_003Fab_003Fed6ba83e_003FConvert_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4828750a_002D6a8d_002D420e_002Dbc80_002D45d30d48d9c8/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TestDictionary_CreateAndLoad" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::C5E621B8-12E3-6C94-B97A-056673560E26::net10.0::TrackableData.Redis.Tests.DictionaryRedisMapperTest.TestDictionary_CreateAndLoad&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=4968cccb_002D3ebc_002D4c63_002D8a5e_002D677b26c6ea88/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="&amp;lt;tests&amp;gt;\&amp;lt;TrackableData.Redis.Tests&amp;gt;의 모든 테스트 #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="/Users/tteogi/work/PrivateProject/TrackableDataNew/TrackableData/tests/TrackableData.Redis.Tests" Presentation="&amp;lt;tests&amp;gt;\&amp;lt;TrackableData.Redis.Tests&amp;gt;" /&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=52ed0505_002D9d37_002D48bd_002Dbb53_002D9d03e29d906c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="&amp;lt;tests&amp;gt;\&amp;lt;TrackableData.Redis.Tests&amp;gt;의 모든 테스트 #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="/Users/tteogi/work/PrivateProject/TrackableDataNew/TrackableData/tests/TrackableData.Redis.Tests" Presentation="&amp;lt;tests&amp;gt;\&amp;lt;TrackableData.Redis.Tests&amp;gt;" /&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=82892e53_002Df793_002D4088_002D8040_002D251b7c3d558e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="DictionaryRedisMapperTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::C5E621B8-12E3-6C94-B97A-056673560E26::net10.0::TrackableData.Redis.Tests.DictionaryRedisMapperTest&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=978ff7c5_002Da4dc_002D46ea_002D8d90_002D7012b10786be/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="&amp;lt;tests&amp;gt;\&amp;lt;TrackableData.Redis.Tests&amp;gt;의 모든 테스트 #4" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="/Users/tteogi/work/PrivateProject/TrackableDataNew/TrackableData/tests/TrackableData.Redis.Tests" Presentation="&amp;lt;tests&amp;gt;\&amp;lt;TrackableData.Redis.Tests&amp;gt;" /&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f3cd2e55_002D49ea_002D4a39_002Db576_002D77127e5c4f6b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="&amp;lt;tests&amp;gt;\&amp;lt;TrackableData.Redis.Tests&amp;gt;의 모든 테스트" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="/Users/tteogi/work/PrivateProject/TrackableDataNew/TrackableData/tests/TrackableData.Redis.Tests" Presentation="&amp;lt;tests&amp;gt;\&amp;lt;TrackableData.Redis.Tests&amp;gt;" /&gt;
+&lt;/SessionState&gt;</s:String>
+	
+	
 	</wpf:ResourceDictionary>

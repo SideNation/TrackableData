@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace TrackableData.MongoDB
@@ -25,7 +24,7 @@ namespace TrackableData.MongoDB
         {
             var doc = new BsonDocument();
             foreach (var item in dictionary)
-                doc.Add(item.Key.ToString(), BsonDocumentWrapper.Create(item.Value));
+                doc.Add(item.Key.ToString(), BsonValueMapper.ToBsonValue(item.Value));
             return doc;
         }
 
@@ -46,10 +45,7 @@ namespace TrackableData.MongoDB
                     throw;
                 }
 
-                var value = element.Value.IsBsonDocument
-                    ? (TValue)BsonSerializer.Deserialize(element.Value.AsBsonDocument, typeof(TValue))
-                    : (TValue)Convert.ChangeType(element.Value, typeof(TValue));
-                dictionary.Add(key, value);
+                dictionary.Add(key, BsonValueMapper.ToValue<TValue>(element.Value));
             }
             return dictionary;
         }
@@ -67,8 +63,8 @@ namespace TrackableData.MongoDB
                     case TrackableDictionaryOperation.Add:
                     case TrackableDictionaryOperation.Modify:
                         update = update == null
-                            ? Builders<BsonDocument>.Update.Set(keyNamespace + change.Key, change.Value.NewValue)
-                            : update.Set(keyNamespace + change.Key, change.Value.NewValue);
+                            ? Builders<BsonDocument>.Update.Set(keyNamespace + change.Key, BsonValueMapper.ToBsonValue(change.Value.NewValue))
+                            : update.Set(keyNamespace + change.Key, BsonValueMapper.ToBsonValue(change.Value.NewValue));
                         break;
 
                     case TrackableDictionaryOperation.Remove:

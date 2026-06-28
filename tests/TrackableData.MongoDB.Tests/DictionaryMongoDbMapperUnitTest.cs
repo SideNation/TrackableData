@@ -30,6 +30,28 @@ namespace TrackableData.MongoDB.Tests
         }
 
         [Fact]
+        public void ConvertToBsonDocument_ClassValue()
+        {
+            var mapper = new TrackableDictionaryMongoDbMapper<string, BsonValueMapperTestClass>();
+            var dict = new Dictionary<string, BsonValueMapperTestClass>
+            {
+                {
+                    "a",
+                    new BsonValueMapperTestClass
+                    {
+                        Name = "Alpha",
+                        Level = 3
+                    }
+                }
+            };
+            var bson = mapper.ConvertToBsonDocument(dict);
+
+            Assert.True(bson["a"].IsBsonDocument);
+            Assert.Equal("Alpha", bson["a"].AsBsonDocument["Name"].AsString);
+            Assert.Equal(3, bson["a"].AsBsonDocument["Level"].AsInt32);
+        }
+
+        [Fact]
         public void ConvertToTrackableDictionary_BasicDocument()
         {
             var doc = new BsonDocument { { "x", "hello" }, { "y", "world" } };
@@ -38,6 +60,28 @@ namespace TrackableData.MongoDB.Tests
             Assert.Equal(2, dict.Count);
             Assert.Equal("hello", dict["x"]);
             Assert.Equal("world", dict["y"]);
+        }
+
+        [Fact]
+        public void ConvertToTrackableDictionary_ClassValue()
+        {
+            var mapper = new TrackableDictionaryMongoDbMapper<string, BsonValueMapperTestClass>();
+            var doc = new BsonDocument
+            {
+                {
+                    "a",
+                    new BsonDocument
+                    {
+                        { "Name", "Alpha" },
+                        { "Level", 3 }
+                    }
+                }
+            };
+            var dict = mapper.ConvertToTrackableDictionary(doc);
+
+            Assert.Single(dict);
+            Assert.Equal("Alpha", dict["a"].Name);
+            Assert.Equal(3, dict["a"].Level);
         }
 
         [Fact]
@@ -103,11 +147,5 @@ namespace TrackableData.MongoDB.Tests
             var mapper = new TrackableDictionaryMongoDbMapper<int, string>(logger);
             Assert.NotNull(mapper);
         }
-    }
-
-    internal class TestTrackableLogger : ITrackableLogger
-    {
-        public int CallCount;
-        public void LogDebug(string message, params object[] args) => CallCount++;
     }
 }

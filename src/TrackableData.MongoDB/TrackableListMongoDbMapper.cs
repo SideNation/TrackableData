@@ -18,6 +18,67 @@ namespace TrackableData.MongoDB
             _logger = logger;
         }
 
+        public BsonArray ConvertToBsonArray(IList<T> list)
+        {
+            return new BsonArray(list.Select(v => BsonValueMapper.ToBsonValue(v)));
+        }
+
+        public TrackableList<T> ConvertToTrackableList(BsonArray bson)
+        {
+            var list = new TrackableList<T>();
+            foreach (var item in bson)
+                list.Add(BsonValueMapper.ToValue<T>(item));
+            return list;
+        }
+
+        public List<UpdateDefinition<BsonDocument>> BuildUpdatesForSave(
+            TrackableListTracker<T> tracker, params object[] keyValues)
+        {
+            var valuePath = DocumentHelper.ToDotPath(keyValues);
+            var updates = new List<UpdateDefinition<BsonDocument>>();
+
+            foreach (var change in tracker.ChangeList)
+            {
+                switch (change.Operation)
+                {
+                    case TrackableListOperation.Insert:
+                        updates.Add(Builders<BsonDocument>.Update.PushEach(valuePath,
+                            new[] { BsonValueMapper.ToBsonValue(change.NewValue) },
+                            position: change.Index));
+                        break;
+
+                    case TrackableListOperation.Modify:
+                        updates.Add(Builders<BsonDocument>.Update.Set(valuePath + "." + change.Index,
+                            BsonValueMapper.ToBsonValue(change.NewValue)));
+                        break;
+
+                    case TrackableListOperation.PushFront:
+                        updates.Add(Builders<BsonDocument>.Update.PushEach(valuePath,
+                            new[] { BsonValueMapper.ToBsonValue(change.NewValue) },
+                            position: 0));
+                        break;
+
+                    case TrackableListOperation.PushBack:
+                        updates.Add(Builders<BsonDocument>.Update.Push(valuePath,
+                            BsonValueMapper.ToBsonValue(change.NewValue)));
+                        break;
+
+                    case TrackableListOperation.PopFront:
+                        updates.Add(Builders<BsonDocument>.Update.PopFirst(valuePath));
+                        break;
+
+                    case TrackableListOperation.PopBack:
+                        updates.Add(Builders<BsonDocument>.Update.PopLast(valuePath));
+                        break;
+
+                    case TrackableListOperation.Remove:
+                        throw new NotSupportedException("Remove at arbitrary index is not supported in MongoDB list.");
+                }
+            }
+
+            return updates;
+        }
+
         public async Task CreateAsync(IMongoCollection<BsonDocument> collection, IList<T> list,
             params object[] keyValues)
         {
@@ -27,7 +88,7 @@ namespace TrackableData.MongoDB
             _logger.LogDebug("TrackableListMongoDbMapper<{Type}>.CreateAsync", typeof(T).Name);
 
             var valuePath = DocumentHelper.ToDotPath(keyValues.Skip(1));
-            var bsonArray = new BsonArray(list.Select(v => BsonValue.Create(v)));
+            var bsonArray = ConvertToBsonArray(list);
             await collection.UpdateOneAsync(
                 Builders<BsonDocument>.Filter.Eq("_id", keyValues[0]),
                 Builders<BsonDocument>.Update.Set(valuePath, bsonArray),
@@ -57,12 +118,7 @@ namespace TrackableData.MongoDB
             if (value == null || !value.IsBsonArray)
                 return null;
 
-            var list = new TrackableList<T>();
-            foreach (var item in value.AsBsonArray)
-            {
-                list.Add((T)Convert.ChangeType(item, typeof(T)));
-            }
-            return list;
+            return ConvertToTrackableList(value.AsBsonArray);
         }
 
         public async Task SaveAsync(IMongoCollection<BsonDocument> collection,
@@ -78,52 +134,10 @@ namespace TrackableData.MongoDB
             _logger.LogDebug("TrackableListMongoDbMapper<{Type}>.SaveAsync: {Count} changes",
                 typeof(T).Name, tracker.ChangeList.Count);
 
-            var valuePath = DocumentHelper.ToDotPath(keyValues.Skip(1));
             var filter = Builders<BsonDocument>.Filter.Eq("_id", keyValues[0]);
-
-            foreach (var change in tracker.ChangeList)
+            foreach (var update in BuildUpdatesForSave(tracker, keyValues.Skip(1).ToArray()))
             {
-                switch (change.Operation)
-                {
-                    case TrackableListOperation.Insert:
-                        await collection.UpdateOneAsync(filter,
-                            Builders<BsonDocument>.Update.PushEach(valuePath,
-                                new[] { BsonValue.Create(change.NewValue) },
-                                position: change.Index));
-                        break;
-
-                    case TrackableListOperation.Modify:
-                        await collection.UpdateOneAsync(filter,
-                            Builders<BsonDocument>.Update.Set(valuePath + "." + change.Index,
-                                BsonValue.Create(change.NewValue)));
-                        break;
-
-                    case TrackableListOperation.PushFront:
-                        await collection.UpdateOneAsync(filter,
-                            Builders<BsonDocument>.Update.PushEach(valuePath,
-                                new[] { BsonValue.Create(change.NewValue) },
-                                position: 0));
-                        break;
-
-                    case TrackableListOperation.PushBack:
-                        await collection.UpdateOneAsync(filter,
-                            Builders<BsonDocument>.Update.Push(valuePath,
-                                BsonValue.Create(change.NewValue)));
-                        break;
-
-                    case TrackableListOperation.PopFront:
-                        await collection.UpdateOneAsync(filter,
-                            Builders<BsonDocument>.Update.PopFirst(valuePath));
-                        break;
-
-                    case TrackableListOperation.PopBack:
-                        await collection.UpdateOneAsync(filter,
-                            Builders<BsonDocument>.Update.PopLast(valuePath));
-                        break;
-
-                    case TrackableListOperation.Remove:
-                        throw new NotSupportedException("Remove at arbitrary index is not supported in MongoDB list.");
-                }
+                await collection.UpdateOneAsync(filter, update);
             }
         }
     }

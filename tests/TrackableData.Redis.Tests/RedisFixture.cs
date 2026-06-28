@@ -8,6 +8,8 @@ namespace TrackableData.Redis.Tests
 {
     public class RedisFixture : IAsyncLifetime
     {
+        private const string ConnectionStringEnvironmentVariableName = "REDIS_CONNECTION_STRING";
+
         private SshTunnel _tunnel;
 
         public ConnectionMultiplexer Connection { get; private set; }
@@ -16,13 +18,17 @@ namespace TrackableData.Redis.Tests
 
         public async Task InitializeAsync()
         {
-            _tunnel = await SshTunnel.GetOrCreateAsync(6379);
-
-            var connectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING");
+            var connectionString = Environment.GetEnvironmentVariable(ConnectionStringEnvironmentVariableName);
             if (string.IsNullOrEmpty(connectionString))
-                connectionString = "localhost:6379";
+                connectionString = EnvFile.GetValue(ConnectionStringEnvironmentVariableName);
 
-            Connection = await ConnectionMultiplexer.ConnectAsync(connectionString);
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                _tunnel = await SshTunnel.GetOrCreateAsync(6379);
+                connectionString = "localhost:6379";
+            }
+
+            Connection = await ConnectAsync(connectionString);
             Db = Connection.GetDatabase();
             KeyPrefix = "test:" + Guid.NewGuid().ToString("N").Substring(0, 8) + ":";
         }
@@ -54,6 +60,45 @@ namespace TrackableData.Redis.Tests
             }
 
             _tunnel?.Dispose();
+        }
+
+        private static Task<ConnectionMultiplexer> ConnectAsync(string connectionString)
+        {
+            var options = CreateConfigurationOptions(connectionString);
+            return options != null
+                ? ConnectionMultiplexer.ConnectAsync(options)
+                : ConnectionMultiplexer.ConnectAsync(connectionString);
+        }
+
+        private static ConfigurationOptions CreateConfigurationOptions(string connectionString)
+        {
+            if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri))
+                return null;
+
+            if (uri.Scheme != "redis" && uri.Scheme != "rediss")
+                return null;
+
+            var options = new ConfigurationOptions
+            {
+                AbortOnConnectFail = false,
+                Ssl = uri.Scheme == "rediss",
+            };
+            options.EndPoints.Add(uri.Host, uri.Port > 0 ? uri.Port : 6379);
+
+            if (!string.IsNullOrEmpty(uri.UserInfo))
+            {
+                var separatorIndex = uri.UserInfo.IndexOf(':');
+                if (separatorIndex >= 0)
+                {
+                    options.User = Uri.UnescapeDataString(uri.UserInfo.Substring(0, separatorIndex));
+                    options.Password = Uri.UnescapeDataString(uri.UserInfo.Substring(separatorIndex + 1));
+                }
+                else
+                {
+                    options.Password = Uri.UnescapeDataString(uri.UserInfo);
+                }
+            }
+            return options;
         }
     }
 }

@@ -145,8 +145,14 @@ namespace TrackableData.Generator
             // Property backing fields and accessors
             foreach (var p in properties)
             {
+                // A poco member is declared as its interface but the backing field must hold the
+                // concrete generated trackable so it can be instantiated and cloned.
+                var isPoco = EmitterHelper.IsTrackablePoco(p.TypeSymbol);
+                var fieldType = isPoco ? EmitterHelper.GetConcreteTrackableTypeName(p.TypeSymbol) : p.TypeName;
+                var assignValue = isPoco ? $"({fieldType})value" : "value";
+
                 sb.AppendLine();
-                sb.AppendLine($"{m}private {p.TypeName} _{p.Name} = new {p.TypeName}();");
+                sb.AppendLine($"{m}private {fieldType} _{p.Name} = new {fieldType}();");
                 sb.AppendLine();
                 sb.AppendLine($"{m}public {p.TypeName} {p.Name}");
                 sb.AppendLine($"{m}{{");
@@ -155,7 +161,7 @@ namespace TrackableData.Generator
                 sb.AppendLine($"{m2}{{");
                 sb.AppendLine($"{m2}    if (_{p.Name} != null) _{p.Name}.Tracker = null;");
                 sb.AppendLine($"{m2}    if (value != null) value.Tracker = Tracker?.{p.Name}Tracker;");
-                sb.AppendLine($"{m2}    _{p.Name} = value;");
+                sb.AppendLine($"{m2}    _{p.Name} = {assignValue};");
                 sb.AppendLine($"{m2}}}");
                 sb.AppendLine($"{m}}}");
             }

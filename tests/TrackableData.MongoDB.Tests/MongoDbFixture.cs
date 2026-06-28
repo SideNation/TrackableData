@@ -9,6 +9,8 @@ namespace TrackableData.MongoDB.Tests
 {
     public class MongoDbFixture : IAsyncLifetime
     {
+        private const string ConnectionStringEnvironmentVariableName = "MONGODB_CONNECTION_STRING";
+
         private SshTunnel _tunnel;
 
         public IMongoDatabase Database { get; private set; }
@@ -16,11 +18,15 @@ namespace TrackableData.MongoDB.Tests
 
         public async Task InitializeAsync()
         {
-            _tunnel = await SshTunnel.GetOrCreateAsync(27017);
-
-            var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
+            var connectionString = Environment.GetEnvironmentVariable(ConnectionStringEnvironmentVariableName);
             if (string.IsNullOrEmpty(connectionString))
+                connectionString = EnvFile.GetValue(ConnectionStringEnvironmentVariableName);
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                _tunnel = await SshTunnel.GetOrCreateAsync(27017);
                 connectionString = "mongodb://localhost:27017";
+            }
 
             Client = new MongoClient(connectionString);
             Database = Client.GetDatabase("trackable_test_" + Guid.NewGuid().ToString("N").Substring(0, 8));
