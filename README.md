@@ -173,9 +173,25 @@ src/
 ```bash
 ./build.sh              # Compile (default)
 ./build.sh Test          # Run unit tests
-./build.sh Pack          # Create NuGet packages
-./build.sh Push --nuget-api-key <KEY>  # Publish to NuGet
+./build.sh Pack          # Create NuGet packages (auto-increments patch version)
+./build.sh Push --nuget-api-key <KEY>  # Publish to NuGet (also runs Pack, auto-increments patch version)
 ```
+
+### Version Management
+
+The current version is defined in `Directory.Build.props`. Running `Pack` or `Push` without `--version` automatically increments the patch version and updates the file.
+
+```bash
+# Auto-increment patch (e.g. 1.0.1 → 1.0.2)
+./build.sh Pack
+./build.sh Push --nuget-api-key <KEY>
+
+# Specify version explicitly
+./build.sh Pack --version 2.0.0
+./build.sh Push --nuget-api-key <KEY> --version 2.0.0
+```
+
+> **Note:** `Push` internally runs `Pack`, so running `Pack` and then `Push` separately will increment the version twice. Use `Push` directly to pack and publish in one step.
 
 ## License
 
