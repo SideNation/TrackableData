@@ -1,4 +1,112 @@
-# TrackableData.Generator - Roslyn Source Generator 가이드
+# TrackableData.Generator 사용법
+
+`TrackableDataV2.Generator`는 `ITrackablePoco<T>`와 `ITrackableContainer<T>` 인터페이스를 찾아 `Trackable...` 구현 클래스를 컴파일 타임에 생성합니다.
+
+## 설치
+
+Generator는 analyzer로 참조해야 합니다.
+
+```xml
+<ItemGroup>
+  <PackageReference Include="TrackableDataV2.Core" Version="1.0.0" />
+  <PackageReference Include="TrackableDataV2.Generator" Version="1.0.0"
+                    OutputItemType="Analyzer"
+                    ReferenceOutputAssembly="false" />
+</ItemGroup>
+```
+
+프로젝트 참조를 직접 사용할 때도 analyzer 출력으로 참조합니다.
+
+```xml
+<ProjectReference Include="..\TrackableData.Generator\TrackableData.Generator.csproj"
+                  OutputItemType="Analyzer"
+                  ReferenceOutputAssembly="false" />
+```
+
+## POCO 생성
+
+```csharp
+using TrackableData;
+
+public interface IPlayer : ITrackablePoco<IPlayer>
+{
+    string Name { get; set; }
+    int Level { get; set; }
+    int Gold { get; set; }
+}
+```
+
+빌드하면 `TrackablePlayer` 클래스가 생성됩니다.
+
+```csharp
+var player = new TrackablePlayer
+{
+    Name = "Alice",
+    Level = 1,
+    Gold = 100
+};
+
+player.SetDefaultTrackerDeep();
+
+player.Level = 2;
+
+var tracker = (TrackablePocoTracker<IPlayer>)player.Tracker;
+Console.WriteLine(tracker.HasChange);
+```
+
+## Container 생성
+
+```csharp
+using TrackableData;
+
+public interface IUserData : ITrackableContainer<IUserData>
+{
+    TrackableDictionary<int, string> Inventory { get; set; }
+    TrackableList<string> Logs { get; set; }
+    TrackableSet<int> Achievements { get; set; }
+}
+```
+
+빌드하면 `TrackableUserData`와 `TrackableUserDataTracker`가 생성됩니다.
+
+```csharp
+var userData = new TrackableUserData();
+userData.SetDefaultTrackerDeep();
+
+userData.Inventory[1001] = "Sword";
+userData.Logs.Add("login");
+userData.Achievements.Add(200);
+```
+
+## 생성 이름 규칙
+
+| 인터페이스 | 생성 클래스 |
+|------------|-------------|
+| `IPlayer` | `TrackablePlayer` |
+| `IUserData` | `TrackableUserData` |
+| `IDataContainer` | `TrackableDataContainer` |
+
+앞 글자가 `I`인 인터페이스는 `I`를 제거하고 `Trackable`을 붙입니다.
+
+## 작성 규칙
+
+- `ITrackablePoco<T>`와 `ITrackableContainer<T>`는 인터페이스에만 사용합니다.
+- 추적할 프로퍼티는 getter와 setter가 모두 있어야 합니다.
+- Container 프로퍼티에는 `TrackableDictionary`, `TrackableList`, `TrackableSet`, 생성된 trackable POCO 등을 사용합니다.
+- 생성된 클래스는 같은 namespace에 생성됩니다.
+
+## 진단 규칙
+
+| Rule ID | 의미 |
+|---------|------|
+| `TRACK001` | Trackable type은 partial이어야 합니다. |
+| `TRACK002` | `ITrackablePoco<T>` 대상은 interface여야 합니다. |
+| `TRACK003` | `ITrackableContainer<T>` 대상은 interface여야 합니다. |
+| `TRACK004` | 프로퍼티에는 getter와 setter가 필요합니다. |
+
+---
+
+# TrackableData.Generator - Roslyn Source Generator 내부 가이드
 
 ## 개요
 
