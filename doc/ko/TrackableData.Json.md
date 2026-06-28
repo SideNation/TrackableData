@@ -74,6 +74,31 @@ var target = new TrackableDictionary<string, int>
 patchJson.ApplyTo(target);
 ```
 
+## 생성된 Container Tracker
+
+생성된 container는 container tracker를 통해 하위 tracker를 연결합니다. Container tracker 자체를 직렬화하려면 변경 전에 생성된 tracker를 container에 할당합니다.
+
+```csharp
+public interface IUserData : ITrackableContainer<IUserData>
+{
+    TrackableDictionary<string, int> Inventory { get; set; }
+    TrackableSet<string> Achievements { get; set; }
+}
+
+var data = new TrackableUserData();
+data.Tracker = new TrackableUserDataTracker();
+
+data.Inventory["sword"] = 2;
+data.Achievements.Add("first-login");
+
+var settings = TrackableJsonSerializerSettings.Create();
+var json = JsonConvert.SerializeObject(data.Tracker, settings);
+var tracker = JsonConvert.DeserializeObject<TrackableUserDataTracker>(json, settings);
+
+var target = new TrackableUserData();
+tracker.ApplyTo((IUserData)target);
+```
+
 ## 지원 Tracker
 
 | Tracker | JSON 형태 |

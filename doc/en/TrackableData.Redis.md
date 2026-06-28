@@ -151,6 +151,32 @@ var deletedCount = await new TrackableContainerRedisMapper<IUserData>()
     .DeleteAsync(db, "user:1");
 ```
 
+## JSON Serialization Options
+
+When a mapper is created without `JsonSerializerOptions`, Redis uses the built-in default options.
+
+The default options:
+
+- Store compact JSON with `WriteIndented = false`.
+- Use `JavaScriptEncoder.Create(UnicodeRanges.All)`, so Unicode text such as Korean or Japanese is stored as readable text instead of `\uXXXX` escapes.
+
+Pass your own `JsonSerializerOptions` when you need different enum, naming, converter, or encoder behavior.
+
+```csharp
+using System.Text.Json;
+using TrackableData;
+using TrackableData.Redis;
+
+var options = new JsonSerializerOptions
+{
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+};
+
+var mapper = new TrackablePocoRedisMapper<IPlayer>(
+    NullTrackableLogger.Instance,
+    options);
+```
+
 ## Notes
 
 - JSON commands fail if Redis Stack RedisJSON is not available.

@@ -10,9 +10,9 @@ This folder documents how to use TrackableData V2 by plugin.
 | [TrackableData.Generator.md](TrackableData.Generator.md) | Source Generator setup and generation rules |
 | [TrackableData.Json.md](TrackableData.Json.md) | Newtonsoft.Json tracker serialization and JSON patch usage |
 | [TrackableData.MemoryPack.md](TrackableData.MemoryPack.md) | MemoryPack formatter registration and usage |
-| [TrackableData.MongoDB.md](TrackableData.MongoDB.md) | MongoDB create/load/partial save |
+| [TrackableData.MongoDB.md](TrackableData.MongoDB.md) | MongoDB create/load/partial save and BSON value mapping |
 | [TrackableData.PostgreSql.md](TrackableData.PostgreSql.md) | PostgreSQL table mapping and persistence |
-| [TrackableData.Redis.md](TrackableData.Redis.md) | Redis Stack RedisJSON create/load/partial save |
+| [TrackableData.Redis.md](TrackableData.Redis.md) | Redis Stack RedisJSON create/load/partial save and JSON options |
 
 ## Basic Package Setup
 

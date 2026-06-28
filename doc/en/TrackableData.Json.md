@@ -74,6 +74,31 @@ var target = new TrackableDictionary<string, int>
 patchJson.ApplyTo(target);
 ```
 
+## Generated Container Trackers
+
+Generated containers attach child trackers through their container tracker. When you want to serialize a container tracker directly, assign the generated tracker to the container before making changes.
+
+```csharp
+public interface IUserData : ITrackableContainer<IUserData>
+{
+    TrackableDictionary<string, int> Inventory { get; set; }
+    TrackableSet<string> Achievements { get; set; }
+}
+
+var data = new TrackableUserData();
+data.Tracker = new TrackableUserDataTracker();
+
+data.Inventory["sword"] = 2;
+data.Achievements.Add("first-login");
+
+var settings = TrackableJsonSerializerSettings.Create();
+var json = JsonConvert.SerializeObject(data.Tracker, settings);
+var tracker = JsonConvert.DeserializeObject<TrackableUserDataTracker>(json, settings);
+
+var target = new TrackableUserData();
+tracker.ApplyTo((IUserData)target);
+```
+
 ## Supported Trackers
 
 | Tracker | JSON shape |

@@ -93,6 +93,26 @@ await setMapper.CreateAsync(collection, set, "player:1", "achievements");
 | `CreateAsync(collection, value, "player:1")` | Store in the document with `_id = "player:1"` |
 | `CreateAsync(collection, value, "player:1", "inventory")` | Store in the `inventory` field of the document with `_id = "player:1"` |
 
+Collection values can be primitive values or class values. The mapper converts each value through the MongoDB BSON serializer, so class values round-trip through dictionary, list, set, and container mappers.
+
+```csharp
+public sealed class ItemValue
+{
+    public string Name { get; set; }
+    public int Level { get; set; }
+}
+
+var itemMapper = new TrackableDictionaryMongoDbMapper<int, ItemValue>();
+
+var items = new TrackableDictionary<int, ItemValue>
+{
+    { 1, new ItemValue { Name = "Sword", Level = 10 } }
+};
+
+await itemMapper.CreateAsync(collection, items, "player:1", "items");
+var loadedItems = await itemMapper.LoadAsync(collection, "player:1", "items");
+```
+
 ## Save Collection Changes
 
 ```csharp
@@ -109,6 +129,27 @@ await dictMapper.SaveAsync(
 dict.ClearTrackerDeep();
 ```
 
+## Save a Container
+
+Container properties can be trackable POCO, Dictionary, List, or Set values. Dictionary/List/Set members may also contain class values.
+
+```csharp
+public interface IUserData : ITrackableContainer<IUserData>
+{
+    TrackableDictionary<int, ItemValue> Items { get; set; }
+    TrackableList<ItemValue> History { get; set; }
+}
+
+var containerMapper = new TrackableContainerMongoDbMapper<IUserData>();
+
+var userData = new TrackableUserData();
+userData.Items.Add(1, new ItemValue { Name = "Sword", Level = 10 });
+userData.History.Add(new ItemValue { Name = "LoginReward", Level = 1 });
+
+await containerMapper.CreateAsync(collection, userData, "player:1");
+var loadedUserData = await containerMapper.LoadAsync(collection, "player:1");
+```
+
 ## Delete
 
 ```csharp
@@ -119,5 +160,6 @@ var deletedCount = await mapper.DeleteAsync(collection, "player:1");
 
 - Mappers register the required BSON class maps when they are created.
 - The MongoDB plugin targets `BsonDocument` collections.
+- Collection values are serialized through the MongoDB BSON serializer. Null values are stored as BSON null.
 - `SaveAsync` saves only changes stored in the tracker. Use a create/replace flow or the MongoDB driver directly when you need a full replacement.
 - List changes are index-based. Define your own conflict policy when multiple writers modify the same document concurrently.

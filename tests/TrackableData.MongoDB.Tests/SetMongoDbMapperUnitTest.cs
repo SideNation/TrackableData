@@ -27,6 +27,36 @@ namespace TrackableData.MongoDB.Tests
         }
 
         [Fact]
+        public void ConvertToBsonArray_ClassValue()
+        {
+            var mapper = new TrackableSetMongoDbMapper<BsonValueMapperTestClass>();
+            var set = new TrackableSet<BsonValueMapperTestClass>
+            {
+                new BsonValueMapperTestClass { Name = "Alpha", Level = 3 }
+            };
+            var bson = mapper.ConvertToBsonArray(set);
+
+            Assert.True(bson[0].IsBsonDocument);
+            Assert.Equal("Alpha", bson[0].AsBsonDocument["Name"].AsString);
+            Assert.Equal(3, bson[0].AsBsonDocument["Level"].AsInt32);
+        }
+
+        [Fact]
+        public void ConvertToTrackableSet_ClassValue_RoundTrip()
+        {
+            var mapper = new TrackableSetMongoDbMapper<BsonValueMapperTestClass>();
+            var set = new TrackableSet<BsonValueMapperTestClass>
+            {
+                new BsonValueMapperTestClass { Name = "Alpha", Level = 3 }
+            };
+            var result = mapper.ConvertToTrackableSet(mapper.ConvertToBsonArray(set));
+
+            var item = Assert.Single(result);
+            Assert.Equal("Alpha", item.Name);
+            Assert.Equal(3, item.Level);
+        }
+
+        [Fact]
         public void BuildUpdatesForSave_AddOnly_SingleUpdate()
         {
             var tracker = new TrackableSetTracker<int>();

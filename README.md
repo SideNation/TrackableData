@@ -2,7 +2,7 @@
 
 Lightweight change-tracking library for .NET objects and collections.
 
-Property-level change tracking for POCO, Dictionary, List, Set with storage plugins for MongoDB, PostgreSQL, Redis.
+Property-level change tracking for POCO, Dictionary, List, Set with serialization plugins for JSON/MemoryPack and storage plugins for MongoDB, PostgreSQL, Redis.
 
 ## Features
 
@@ -11,7 +11,7 @@ Property-level change tracking for POCO, Dictionary, List, Set with storage plug
 - **Storage Plugins** - MongoDB, PostgreSQL, Redis (RedisJSON)
 - **Serialization** - Newtonsoft.Json support for JSON patches and MemoryPack support for high-performance binary serialization
 - **ILogger** - Microsoft.Extensions.Logging integration throughout
-- **Unity compatible** - Core, MemoryPack, Generator target netstandard2.1 with C# 9.0
+- **Unity compatible** - Core, Json, MemoryPack, Generator target netstandard2.1 with C# 9.0
 
 ## NuGet Packages
 
@@ -95,6 +95,31 @@ tags.SetDefaultTrackerDeep();
 tags.Add("beta");              // tracked as Add
 tags.Remove("vip");            // tracked as Remove
 ```
+
+## Serialization Plugins
+
+### JSON
+
+```csharp
+using Newtonsoft.Json;
+using TrackableData.Json;
+
+var settings = TrackableJsonSerializerSettings.Create();
+
+var inventory = new TrackableDictionary<string, int> { { "sword", 1 } };
+inventory.SetDefaultTrackerDeep();
+inventory["sword"] = 2;
+inventory.Add("shield", 1);
+
+var patchJson = inventory.SerializeChangedTrackersWithPath(settings);
+
+var target = new TrackableDictionary<string, int> { { "sword", 1 } };
+patchJson.ApplyTo(target, settings);
+```
+
+### MemoryPack
+
+Use `TrackableDataV2.MemoryPack` when you need binary serialization for `TrackableDictionary`, `TrackableList`, `TrackableSet`, and their trackers.
 
 ## Storage Plugins
 

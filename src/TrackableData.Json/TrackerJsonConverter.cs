@@ -5,6 +5,12 @@ using Newtonsoft.Json;
 
 namespace TrackableData.Json
 {
+    /// <summary>
+    /// Auto-dispatching tracker converter. It resolves the concrete converter for a runtime tracker
+    /// type via <c>Type.MakeGenericType</c>, which is NOT safe under Unity IL2CPP / AOT for
+    /// value-type generic arguments. For AOT, register concrete converters with
+    /// <see cref="TrackableJsonConverters"/> instead of using this dispatcher.
+    /// </summary>
     public sealed class TrackerJsonConverter : JsonConverter
     {
         private readonly ConcurrentDictionary<Type, JsonConverter> _converterMap = new ConcurrentDictionary<Type, JsonConverter>();

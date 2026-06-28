@@ -151,6 +151,32 @@ var deletedCount = await new TrackableContainerRedisMapper<IUserData>()
     .DeleteAsync(db, "user:1");
 ```
 
+## JSON 직렬화 옵션
+
+Mapper를 `JsonSerializerOptions` 없이 생성하면 Redis는 내장 기본 옵션을 사용합니다.
+
+기본 옵션은 다음과 같습니다.
+
+- `WriteIndented = false`로 compact JSON을 저장합니다.
+- `JavaScriptEncoder.Create(UnicodeRanges.All)`을 사용해 한글이나 일본어 같은 Unicode 문자를 `\uXXXX` escape가 아닌 읽을 수 있는 문자로 저장합니다.
+
+Enum, naming, converter, encoder 동작을 바꿔야 하면 직접 `JsonSerializerOptions`를 넘깁니다.
+
+```csharp
+using System.Text.Json;
+using TrackableData;
+using TrackableData.Redis;
+
+var options = new JsonSerializerOptions
+{
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+};
+
+var mapper = new TrackablePocoRedisMapper<IPlayer>(
+    NullTrackableLogger.Instance,
+    options);
+```
+
 ## 주의할 점
 
 - Redis Stack RedisJSON 모듈이 없으면 JSON 명령이 실패합니다.
