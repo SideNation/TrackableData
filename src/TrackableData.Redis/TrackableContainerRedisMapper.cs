@@ -39,7 +39,7 @@ namespace TrackableData.Redis
         public TrackableContainerRedisMapper(ITrackableLogger logger, JsonSerializerOptions jsonOptions = null)
         {
             _logger = logger;
-            _jsonOptions = jsonOptions ?? new JsonSerializerOptions();
+            _jsonOptions = RedisJsonSerializerOptions.GetDefaultOr(jsonOptions);
 
             _trackableType = TrackableResolver.GetContainerTrackerType(typeof(T));
             if (_trackableType == null)

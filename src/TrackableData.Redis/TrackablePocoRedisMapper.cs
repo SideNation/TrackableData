@@ -33,7 +33,7 @@ namespace TrackableData.Redis
         public TrackablePocoRedisMapper(ITrackableLogger logger, JsonSerializerOptions jsonOptions = null)
         {
             _logger = logger;
-            _jsonOptions = jsonOptions ?? new JsonSerializerOptions();
+            _jsonOptions = RedisJsonSerializerOptions.GetDefaultOr(jsonOptions);
 
             _trackableType = TrackableResolver.GetPocoTrackerType(typeof(T));
             if (_trackableType == null)

@@ -19,7 +19,7 @@ namespace TrackableData.Redis
         public TrackableDictionaryRedisMapper(ITrackableLogger logger, JsonSerializerOptions jsonOptions = null)
         {
             _logger = logger;
-            _jsonOptions = jsonOptions ?? new JsonSerializerOptions();
+            _jsonOptions = RedisJsonSerializerOptions.GetDefaultOr(jsonOptions);
         }
 
         public async Task CreateAsync(IDatabase db, IDictionary<TKey, TValue> dictionary, RedisKey key)

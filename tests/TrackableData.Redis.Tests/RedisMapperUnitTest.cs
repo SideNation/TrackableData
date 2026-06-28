@@ -1,10 +1,14 @@
 using System;
+using System.Reflection;
+using System.Text.Json;
 using Xunit;
 
 namespace TrackableData.Redis.Tests
 {
     public class RedisMapperUnitTest
     {
+        private const string JsonOptionsFieldName = "_jsonOptions";
+
         // --- Poco Mapper Construction ---
 
         [Fact]
@@ -20,6 +24,34 @@ namespace TrackableData.Redis.Tests
             var logger = new RedisTestLogger();
             var mapper = new TrackablePocoRedisMapper<ITestPerson>(logger);
             Assert.NotNull(mapper);
+        }
+
+        [Fact]
+        public void PocoMapper_DefaultJsonOptions_WritesUnicodeCompactJson()
+        {
+            var mapper = new TrackablePocoRedisMapper<ITestPerson>();
+            var jsonOptions = GetJsonOptions(mapper);
+            var json = JsonSerializer.Serialize(
+                new JsonOptionsSample
+                {
+                    Text = "한글日本"
+                },
+                jsonOptions);
+
+            Assert.Equal("{\"Text\":\"한글日本\"}", json);
+        }
+
+        [Fact]
+        public void PocoMapper_WithJsonOptions_UsesProvidedOptions()
+        {
+            var expected = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            var mapper = new TrackablePocoRedisMapper<ITestPerson>(new RedisTestLogger(), expected);
+            var actual = GetJsonOptions(mapper);
+
+            Assert.Same(expected, actual);
         }
 
         // --- Dictionary Mapper Construction ---
@@ -111,12 +143,23 @@ namespace TrackableData.Redis.Tests
             Assert.NotNull(mapper);
         }
 
+        private static JsonSerializerOptions GetJsonOptions(object mapper)
+        {
+            var field = mapper.GetType().GetField(JsonOptionsFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull(field);
+            return Assert.IsType<JsonSerializerOptions>(field.GetValue(mapper));
+        }
     }
 
     internal class RedisTestLogger : ITrackableLogger
     {
         public int CallCount;
         public void LogDebug(string message, params object[] args) => CallCount++;
+    }
+
+    internal class JsonOptionsSample
+    {
+        public string Text { get; set; }
     }
 
     public interface ITestDataContainer : ITrackableContainer<ITestDataContainer>
