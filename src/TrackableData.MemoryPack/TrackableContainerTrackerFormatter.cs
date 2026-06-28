@@ -1,5 +1,4 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,21 +7,21 @@ using MemoryPack;
 namespace TrackableData.MemoryPack
 {
     // A container tracker is a bag of named sub-trackers (one per container member). Only the
-    // changed ones are written, each serialized by its concrete sub-tracker type. Keyed by the
-    // IContainerTracker<T> interface because the concrete tracker type is generated.
-    public sealed class TrackableContainerTrackerFormatter<T>
-        : MemoryPackFormatter<IContainerTracker<T>>
-        where T : ITrackableContainer<T>
+    // changed ones are written, each serialized by its concrete sub-tracker type. Generic over the
+    // concrete container tracker type so MemoryPack resolves it for the natural
+    // Serialize(container.Tracker) call.
+    public sealed class TrackableContainerTrackerFormatter<TContainerTracker>
+        : MemoryPackFormatter<TContainerTracker>
+        where TContainerTracker : class, IContainerTracker, new()
     {
-        private static readonly Type TrackerType = TrackerResolver.GetDefaultTracker(typeof(T))!;
-        private static readonly PropertyInfo[] TrackerProperties =
-            TrackerType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => typeof(ITracker).IsAssignableFrom(p.PropertyType))
-                .ToArray();
+        private static readonly PropertyInfo[] TrackerProperties = typeof(TContainerTracker)
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(p => typeof(ITracker).IsAssignableFrom(p.PropertyType))
+            .ToArray();
 
         public override void Serialize<TBufferWriter>(
             ref MemoryPackWriter<TBufferWriter> writer,
-            scoped ref IContainerTracker<T>? value)
+            scoped ref TContainerTracker? value)
 #if NET7_0_OR_GREATER
             where TBufferWriter : default
 #endif
@@ -51,23 +50,23 @@ namespace TrackableData.MemoryPack
 
         public override void Deserialize(
             ref MemoryPackReader reader,
-            scoped ref IContainerTracker<T>? value)
+            scoped ref TContainerTracker? value)
         {
             if (!reader.TryReadCollectionHeader(out var length))
             {
-                value = null;
+                value = default;
                 return;
             }
 
-            var tracker = (IContainerTracker<T>)Activator.CreateInstance(TrackerType)!;
+            var tracker = new TContainerTracker();
             for (var i = 0; i < length; i++)
             {
                 var name = reader.ReadValue<string>()!;
                 var bytes = reader.ReadValue<byte[]>()!;
 
-                var property = TrackerType.GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
+                var property = TrackerProperties.FirstOrDefault(p => p.Name == name);
                 if (property == null)
-                    throw new InvalidOperationException($"Cannot find tracker property '{name}' on {TrackerType}.");
+                    throw new InvalidOperationException($"Cannot find tracker property '{name}' on {typeof(TContainerTracker)}.");
 
                 property.SetValue(tracker, MemoryPackValueSerializer.Deserialize(property.PropertyType, bytes));
             }

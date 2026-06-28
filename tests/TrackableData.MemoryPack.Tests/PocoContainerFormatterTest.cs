@@ -4,17 +4,19 @@ using Xunit;
 
 namespace TrackableData.MemoryPack.Tests
 {
-    // Verifies the new poco and container formatters (whole object + tracker), so MemoryPack now
-    // covers every trackable type like the Json plugin does.
+    // Verifies the poco and container formatters (whole object + tracker), so MemoryPack now
+    // covers every trackable type like the Json plugin does. Serializes the concrete generated
+    // types directly (the natural call) to confirm the formatters are registered for them.
     public class PocoContainerFormatterTest
     {
         public PocoContainerFormatterTest()
         {
-            TrackableDataFormatterInitializer.RegisterPocoFormatter<IMpPerson>();
-            TrackableDataFormatterInitializer.RegisterPocoFormatter<IMpPocoWithClass>();
+            TrackableDataFormatterInitializer.RegisterPocoFormatter<TrackableMpPerson, IMpPerson>();
+            TrackableDataFormatterInitializer.RegisterPocoFormatter<TrackableMpPocoWithClass, IMpPocoWithClass>();
             TrackableDataFormatterInitializer.RegisterDictionaryFormatter<int, SampleData>();
             TrackableDataFormatterInitializer.RegisterListFormatter<SampleData>();
-            TrackableDataFormatterInitializer.RegisterContainerFormatter<IMpClassContainer>();
+            TrackableDataFormatterInitializer
+                .RegisterContainerFormatter<TrackableMpClassContainer, TrackableMpClassContainerTracker>();
         }
 
         // ---- Poco ----
@@ -22,13 +24,13 @@ namespace TrackableData.MemoryPack.Tests
         [Fact]
         public void Poco_SerializeDeserialize()
         {
-            IMpPocoWithClass poco = new TrackableMpPocoWithClass
+            var poco = new TrackableMpPocoWithClass
             {
                 Name = "P",
                 Data = new SampleData { Name = "D", Level = 5 }
             };
             var bytes = MemoryPackSerializer.Serialize(poco);
-            var deserialized = MemoryPackSerializer.Deserialize<IMpPocoWithClass>(bytes);
+            var deserialized = MemoryPackSerializer.Deserialize<TrackableMpPocoWithClass>(bytes);
 
             Assert.NotNull(deserialized);
             Assert.Equal("P", deserialized.Name);
@@ -64,14 +66,32 @@ namespace TrackableData.MemoryPack.Tests
             Assert.Equal(50, target.Data.Level);
         }
 
+        [Fact]
+        public void PocoTracker_PreservesOldValue_ForRollback()
+        {
+            var poco = new TrackableMpPocoWithClass { Name = "old", Data = new SampleData { Name = "D", Level = 1 } };
+            poco.SetDefaultTrackerDeep();
+            poco.Name = "new";
+
+            var tracker = (TrackablePocoTracker<IMpPocoWithClass>)poco.Tracker;
+            var bytes = MemoryPackSerializer.Serialize(tracker);
+            var deserialized = MemoryPackSerializer.Deserialize<TrackablePocoTracker<IMpPocoWithClass>>(bytes);
+
+            // RollbackTo restores the original value, which only works if OldValue survives serialization.
+            var target = new TrackableMpPocoWithClass { Name = "new" };
+            deserialized.RollbackTo((IMpPocoWithClass)target);
+
+            Assert.Equal("old", target.Name);
+        }
+
         // ---- Container ----
 
         [Fact]
         public void Container_SerializeDeserialize()
         {
             var container = CreateSampleContainer();
-            var bytes = MemoryPackSerializer.Serialize((IMpClassContainer)container);
-            var deserialized = MemoryPackSerializer.Deserialize<IMpClassContainer>(bytes);
+            var bytes = MemoryPackSerializer.Serialize(container);
+            var deserialized = MemoryPackSerializer.Deserialize<TrackableMpClassContainer>(bytes);
 
             Assert.NotNull(deserialized);
             Assert.Equal("Alice", deserialized.Person.Name);
@@ -92,9 +112,9 @@ namespace TrackableData.MemoryPack.Tests
             container.Items.Add(3, new SampleData { Name = "Gamma", Level = 3 });
             container.History.Add(new SampleData { Name = "H3", Level = 30 });
 
-            var tracker = (IContainerTracker<IMpClassContainer>)container.Tracker;
-            var bytes = MemoryPackSerializer.Serialize(tracker);
-            var deserialized = MemoryPackSerializer.Deserialize<IContainerTracker<IMpClassContainer>>(bytes);
+            // container.Tracker is the concrete TrackableMpClassContainerTracker — no cast needed.
+            var bytes = MemoryPackSerializer.Serialize(container.Tracker);
+            var deserialized = MemoryPackSerializer.Deserialize<TrackableMpClassContainerTracker>(bytes);
 
             var target = CreateSampleContainer();
             deserialized.ApplyTo((IMpClassContainer)target);

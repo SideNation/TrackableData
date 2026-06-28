@@ -1,25 +1,34 @@
 using System;
-using System.Buffers;
 using System.Linq;
 using System.Reflection;
 using MemoryPack;
 
 namespace TrackableData.MemoryPack
 {
-    // Serializes a whole trackable container as (memberName, value) pairs; each member value
-    // (a poco / dictionary / list / set) is serialized by its declared member type, so the
-    // matching member formatters must also be registered.
-    public sealed class TrackableContainerFormatter<T>
-        : MemoryPackFormatter<T>
-        where T : ITrackableContainer<T>
+    // Serializes a whole trackable container (the generated concrete type) as (memberName, value)
+    // pairs; each member value (poco / dictionary / list / set) is serialized by its declared
+    // member type, so the matching member formatters must also be registered. Generic over the
+    // concrete container type so MemoryPack resolves it for the natural Serialize(container) call.
+    public sealed class TrackableContainerFormatter<TContainer>
+        : MemoryPackFormatter<TContainer>
+        where TContainer : class, new()
     {
-        private static readonly Type ContainerType = TrackableResolver.GetContainerTrackerType(typeof(T))!;
         private static readonly PropertyInfo[] Properties =
-            typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            ResolveContainerInterface().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+        private static Type ResolveContainerInterface()
+        {
+            foreach (var iface in typeof(TContainer).GetInterfaces())
+            {
+                if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(ITrackableContainer<>))
+                    return iface.GetGenericArguments()[0];
+            }
+            throw new InvalidOperationException($"{typeof(TContainer)} is not a trackable container.");
+        }
 
         public override void Serialize<TBufferWriter>(
             ref MemoryPackWriter<TBufferWriter> writer,
-            scoped ref T? value)
+            scoped ref TContainer? value)
 #if NET7_0_OR_GREATER
             where TBufferWriter : default
 #endif
@@ -40,7 +49,7 @@ namespace TrackableData.MemoryPack
 
         public override void Deserialize(
             ref MemoryPackReader reader,
-            scoped ref T? value)
+            scoped ref TContainer? value)
         {
             if (!reader.TryReadCollectionHeader(out var length))
             {
@@ -48,7 +57,7 @@ namespace TrackableData.MemoryPack
                 return;
             }
 
-            var container = (T)Activator.CreateInstance(ContainerType)!;
+            var container = new TContainer();
             for (var i = 0; i < length; i++)
             {
                 var name = reader.ReadValue<string>()!;
@@ -56,7 +65,7 @@ namespace TrackableData.MemoryPack
 
                 var property = Properties.FirstOrDefault(p => p.Name == name);
                 if (property == null)
-                    throw new InvalidOperationException($"Cannot find property '{name}' on {typeof(T)}.");
+                    throw new InvalidOperationException($"Cannot find property '{name}' on {typeof(TContainer)}.");
 
                 property.SetValue(container, MemoryPackValueSerializer.Deserialize(property.PropertyType, bytes));
             }

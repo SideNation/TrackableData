@@ -29,6 +29,7 @@ namespace TrackableData.MemoryPack
             {
                 writer.WriteValue(item.Key.Name);
                 writer.WriteValue(MemoryPackValueSerializer.Serialize(item.Key.PropertyType, item.Value.NewValue));
+                writer.WriteValue(MemoryPackValueSerializer.Serialize(item.Key.PropertyType, item.Value.OldValue));
             }
         }
 
@@ -46,14 +47,16 @@ namespace TrackableData.MemoryPack
             for (var i = 0; i < length; i++)
             {
                 var name = reader.ReadValue<string>()!;
-                var bytes = reader.ReadValue<byte[]>()!;
+                var newBytes = reader.ReadValue<byte[]>()!;
+                var oldBytes = reader.ReadValue<byte[]>()!;
 
                 var property = typeof(T).GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
                 if (property == null)
                     throw new InvalidOperationException($"Cannot find property '{name}' on {typeof(T)}.");
 
-                var newValue = MemoryPackValueSerializer.Deserialize(property.PropertyType, bytes);
-                tracker.TrackSet(property, null, newValue);
+                var newValue = MemoryPackValueSerializer.Deserialize(property.PropertyType, newBytes);
+                var oldValue = MemoryPackValueSerializer.Deserialize(property.PropertyType, oldBytes);
+                tracker.TrackSet(property, oldValue, newValue);
             }
             value = tracker;
         }
