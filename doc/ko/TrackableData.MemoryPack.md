@@ -1,6 +1,6 @@
 # TrackableData.MemoryPack 사용법
 
-`TrackableDataV2.MemoryPack`은 `TrackableDictionary`, `TrackableList`, `TrackableSet`과 각 tracker를 MemoryPack으로 직렬화하기 위한 formatter를 제공합니다.
+`TrackableDataV2.MemoryPack`은 trackable POCO, Container, Dictionary, List, Set 값과 각 tracker를 MemoryPack으로 직렬화하기 위한 formatter를 제공합니다.
 
 ## 설치
 
@@ -24,7 +24,7 @@ TrackableDataFormatterInitializer.RegisterListFormatter<string>();
 TrackableDataFormatterInitializer.RegisterSetFormatter<int>();
 ```
 
-등록 메서드는 collection과 tracker formatter를 함께 등록합니다.
+등록 메서드는 value formatter와 tracker formatter를 함께 등록합니다.
 
 ## Dictionary 직렬화
 
@@ -46,6 +46,37 @@ var restored = MemoryPackSerializer.Deserialize<TrackableDictionary<int, string>
 
 Console.WriteLine(restored[1]); // Sword
 ```
+
+## Class Value 직렬화
+
+Class 타입이 MemoryPack으로 직렬화 가능하면 class value도 사용할 수 있습니다. Class value를 담는 trackable generic 조합을 등록합니다.
+
+```csharp
+using MemoryPack;
+using TrackableData;
+using TrackableData.MemoryPack;
+
+[MemoryPackable]
+public partial class ItemValue
+{
+    public string Name { get; set; }
+    public int Level { get; set; }
+}
+
+TrackableDataFormatterInitializer.RegisterDictionaryFormatter<int, ItemValue>();
+
+var items = new TrackableDictionary<int, ItemValue>
+{
+    { 1, new ItemValue { Name = "Sword", Level = 10 } }
+};
+
+var bytes = MemoryPackSerializer.Serialize(items);
+var restored = MemoryPackSerializer.Deserialize<TrackableDictionary<int, ItemValue>>(bytes);
+
+Console.WriteLine(restored[1].Name); // Sword
+```
+
+POCO의 class 프로퍼티, List/Set 값, container 멤버에도 같은 규칙이 적용됩니다. 직렬화할 POCO/container formatter와 내부 멤버의 formatter 조합을 모두 등록합니다.
 
 ## Tracker 직렬화
 
@@ -76,9 +107,12 @@ Console.WriteLine(target[2]); // C
 | `RegisterDictionaryFormatter<TKey, TValue>()` | `TrackableDictionary<TKey, TValue>`, `TrackableDictionaryTracker<TKey, TValue>` |
 | `RegisterListFormatter<T>()` | `TrackableList<T>`, `TrackableListTracker<T>` |
 | `RegisterSetFormatter<T>()` | `TrackableSet<T>`, `TrackableSetTracker<T>` |
+| `RegisterPocoFormatter<T>()` | `ITrackablePoco<T>` 생성 값, `TrackablePocoTracker<T>` |
+| `RegisterContainerFormatter<T>()` | `ITrackableContainer<T>` 생성 값, `IContainerTracker<T>` |
 
 ## 주의할 점
 
 - formatter 등록은 사용할 generic 조합마다 필요합니다.
-- POCO 자체 formatter는 이 플러그인에서 자동 등록하지 않습니다. POCO 직렬화가 필요하면 일반 MemoryPack 설정을 함께 사용합니다.
+- Class value 타입은 `[MemoryPackable]`처럼 MemoryPack으로 직렬화 가능해야 합니다.
+- Container formatter가 내부 멤버 formatter 등록을 대체하지 않습니다. Container와 내부에서 쓰는 구체 멤버 타입을 모두 등록합니다.
 - AOT 환경을 고려해 구체 타입을 명시적으로 등록하는 방식입니다.

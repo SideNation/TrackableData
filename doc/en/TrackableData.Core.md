@@ -105,6 +105,31 @@ foreach (var change in tracker.ChangeMap)
 }
 ```
 
+## Class Values in Collections
+
+`TrackableDictionary`, `TrackableList`, and `TrackableSet` can hold class values as well as primitive values.
+
+```csharp
+using TrackableData;
+
+public sealed class ItemValue
+{
+    public string Name { get; set; }
+    public int Level { get; set; }
+}
+
+var items = new TrackableDictionary<int, ItemValue>
+{
+    { 1, new ItemValue { Name = "Sword", Level = 10 } }
+};
+
+items.SetDefaultTrackerDeep();
+items[1] = new ItemValue { Name = "Long Sword", Level = 12 };
+items.Add(2, new ItemValue { Name = "Potion", Level = 1 });
+```
+
+Collection trackers record add, remove, and replace operations for class values. Mutating a plain class instance in place, such as `items[1].Level = 12`, is not a collection change. Replace the value or model the nested data as a trackable POCO when you need field-level tracking.
+
 ## Container Usage
 
 Use `ITrackableContainer<T>` to group multiple trackable values into one object.
@@ -156,4 +181,4 @@ Console.WriteLine(source.Level); // 1
 
 - Fill initial values before calling `SetDefaultTrackerDeep()` so initialization is not recorded as a change.
 - After save or synchronization, call `ClearTrackerDeep()` to avoid saving the same changes again.
-- `TrackableDictionary`, `TrackableList`, and `TrackableSet` follow `IDictionary`, `IList`, and `ISet` style APIs.
+- `TrackableDictionary`, `TrackableList`, and `TrackableSet` follow `IDictionary`, `IList`, and `ISet` style APIs and can store class values.

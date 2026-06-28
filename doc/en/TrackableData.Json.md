@@ -92,6 +92,37 @@ var target = new TrackableDictionary<string, int>
 patchJson.ApplyTo(target);
 ```
 
+## Class Values
+
+Tracker JSON can include class values in POCO properties and in Dictionary/List/Set/Container trackers. Values are serialized with Newtonsoft.Json, so use normal Newtonsoft.Json attributes or converters when the class needs custom JSON behavior.
+
+```csharp
+using Newtonsoft.Json;
+using TrackableData;
+using TrackableData.Json;
+
+public sealed class ItemValue
+{
+    public string Name { get; set; }
+    public int Level { get; set; }
+}
+
+var items = new TrackableDictionary<int, ItemValue>
+{
+    { 1, new ItemValue { Name = "Sword", Level = 10 } }
+};
+
+items.SetDefaultTrackerDeep();
+items[1] = new ItemValue { Name = "Long Sword", Level = 12 };
+items.Add(2, new ItemValue { Name = "Potion", Level = 1 });
+
+var settings = TrackableJsonSerializerSettings.Create();
+var json = JsonConvert.SerializeObject(items.Tracker, settings);
+var tracker = JsonConvert.DeserializeObject<TrackableDictionaryTracker<int, ItemValue>>(json, settings);
+```
+
+For class values in collections, replace the value to record a change. Mutating a plain class instance in place is not tracked unless that nested data is itself modeled as a trackable object.
+
 ## Generated Container Trackers
 
 Generated containers attach child trackers through their container tracker. When you want to serialize a container tracker directly, assign the generated tracker to the container before making changes.
@@ -130,6 +161,7 @@ tracker.ApplyTo((IUserData)target);
 ## Notes
 
 - The JSON format is optimized for applying changes to another trackable object.
+- Class values are supported when Newtonsoft.Json can serialize and deserialize the class type.
 - Remove operations do not need old values when applying changes to a target object.
 - For generated containers, serialize the container tracker directly when the child trackers are already connected through the container tracker.
 - Use `CreateForAot()` plus explicit converter registration for Unity IL2CPP/AOT scenarios. Use MemoryPack when you need binary serialization.

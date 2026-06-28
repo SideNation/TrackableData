@@ -6,13 +6,13 @@
 
 | 문서 | 내용 |
 |------|------|
-| [TrackableData.Core.md](TrackableData.Core.md) | 기본 설정, POCO/Dictionary/List/Set 변경 추적 |
+| [TrackableData.Core.md](TrackableData.Core.md) | 기본 설정, POCO/Dictionary/List/Set 변경 추적, class value |
 | [TrackableData.Generator.md](TrackableData.Generator.md) | Source Generator 설정과 생성 규칙 |
-| [TrackableData.Json.md](TrackableData.Json.md) | Newtonsoft.Json tracker 직렬화, AOT converter 등록, JSON patch 사용 |
-| [TrackableData.MemoryPack.md](TrackableData.MemoryPack.md) | MemoryPack 직렬화 formatter 등록과 사용 |
-| [TrackableData.MongoDB.md](TrackableData.MongoDB.md) | MongoDB 저장/로드/부분 저장, `_id` 매핑, BSON 값 매핑 |
+| [TrackableData.Json.md](TrackableData.Json.md) | Newtonsoft.Json tracker 직렬화, class value, AOT converter 등록, JSON patch 사용 |
+| [TrackableData.MemoryPack.md](TrackableData.MemoryPack.md) | MemoryPack 직렬화 formatter 등록, class value, 사용법 |
+| [TrackableData.MongoDB.md](TrackableData.MongoDB.md) | MongoDB 저장/로드/부분 저장, `_id` 매핑, BSON/class value 매핑 |
 | [TrackableData.PostgreSql.md](TrackableData.PostgreSql.md) | PostgreSQL 테이블 매핑과 저장/로드 |
-| [TrackableData.Redis.md](TrackableData.Redis.md) | Redis Stack RedisJSON 저장/로드/부분 저장, key 매핑, JSON 옵션 |
+| [TrackableData.Redis.md](TrackableData.Redis.md) | Redis Stack RedisJSON 저장/로드/부분 저장, class value, key 매핑, JSON 옵션 |
 
 ## 기본 패키지 구성
 
@@ -75,5 +75,6 @@ Console.WriteLine(tracker.HasChange);
 
 - `Tracker`가 없으면 변경이 기록되지 않습니다. 변경 전 `SetDefaultTrackerDeep()`을 호출합니다.
 - 저장 플러그인의 `SaveAsync`는 전체 객체가 아니라 tracker를 받아 변경분만 반영합니다.
+- Trackable collection은 class 값을 저장할 수 있습니다. Collection 변경으로 기록하려면 class 값을 교체하고, 필드 단위 변경 추적이 필요하면 중첩 데이터를 trackable로 모델링합니다.
 - 저장 성공 후 같은 객체를 계속 사용할 경우 `ClearTrackerDeep()`으로 저장된 변경 기록을 지웁니다.
 - Source Generator가 만든 클래스 이름은 인터페이스 이름의 앞 `I`를 제거하고 `Trackable`을 붙인 형태입니다. 예: `IPlayer` -> `TrackablePlayer`.

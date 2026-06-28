@@ -120,7 +120,7 @@ await setMapper.CreateAsync(collection, set, "player:1", "achievements");
 | `CreateAsync(collection, value, "player:1")` | `_id = "player:1"` 문서에 저장 |
 | `CreateAsync(collection, value, "player:1", "inventory")` | `_id = "player:1"` 문서의 `inventory` 필드에 저장 |
 
-Collection value는 primitive 값뿐 아니라 class 값도 사용할 수 있습니다. Mapper는 각 값을 MongoDB BSON serializer를 통해 변환하므로 dictionary, list, set, container mapper에서 class 값도 round-trip 됩니다.
+Collection value는 primitive 값뿐 아니라 class 값도 사용할 수 있습니다. Mapper는 각 값을 MongoDB BSON serializer를 통해 변환하므로 dictionary, list, set, container mapper에서 class 값도 round-trip 됩니다. MongoDB BSON serializer가 매핑할 수 있는 타입이면 POCO 프로퍼티에도 class 값을 사용할 수 있습니다.
 
 ```csharp
 public sealed class ItemValue

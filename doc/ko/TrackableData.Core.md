@@ -105,6 +105,31 @@ foreach (var change in tracker.ChangeMap)
 }
 ```
 
+## Collection의 Class Value
+
+`TrackableDictionary`, `TrackableList`, `TrackableSet`은 primitive 값뿐 아니라 class 값도 담을 수 있습니다.
+
+```csharp
+using TrackableData;
+
+public sealed class ItemValue
+{
+    public string Name { get; set; }
+    public int Level { get; set; }
+}
+
+var items = new TrackableDictionary<int, ItemValue>
+{
+    { 1, new ItemValue { Name = "Sword", Level = 10 } }
+};
+
+items.SetDefaultTrackerDeep();
+items[1] = new ItemValue { Name = "Long Sword", Level = 12 };
+items.Add(2, new ItemValue { Name = "Potion", Level = 1 });
+```
+
+Collection tracker는 class 값의 추가, 제거, 교체를 기록합니다. `items[1].Level = 12`처럼 plain class 인스턴스 내부를 직접 바꾸는 것은 collection 변경이 아닙니다. 필드 단위 변경 추적이 필요하면 값을 교체하거나 중첩 데이터를 trackable POCO로 모델링합니다.
+
 ## Container 사용
 
 여러 trackable 값을 한 객체로 묶을 때는 `ITrackableContainer<T>`를 사용합니다.
@@ -156,4 +181,4 @@ Console.WriteLine(source.Level); // 1
 
 - 초기값을 모두 채운 뒤 `SetDefaultTrackerDeep()`을 호출해야 초기 세팅이 변경으로 기록되지 않습니다.
 - 저장이나 동기화가 끝난 뒤에는 `ClearTrackerDeep()`을 호출해 같은 변경이 다시 저장되지 않게 합니다.
-- `TrackableDictionary`, `TrackableList`, `TrackableSet`은 각각 `IDictionary`, `IList`, `ISet` 스타일 API를 따릅니다.
+- `TrackableDictionary`, `TrackableList`, `TrackableSet`은 각각 `IDictionary`, `IList`, `ISet` 스타일 API를 따르며 class 값도 저장할 수 있습니다.

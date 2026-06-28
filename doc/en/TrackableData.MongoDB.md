@@ -120,7 +120,7 @@ await setMapper.CreateAsync(collection, set, "player:1", "achievements");
 | `CreateAsync(collection, value, "player:1")` | Store in the document with `_id = "player:1"` |
 | `CreateAsync(collection, value, "player:1", "inventory")` | Store in the `inventory` field of the document with `_id = "player:1"` |
 
-Collection values can be primitive values or class values. The mapper converts each value through the MongoDB BSON serializer, so class values round-trip through dictionary, list, set, and container mappers.
+Collection values can be primitive values or class values. The mapper converts each value through the MongoDB BSON serializer, so class values round-trip through dictionary, list, set, and container mappers. POCO properties can also be class values when the MongoDB BSON serializer can map the class type.
 
 ```csharp
 public sealed class ItemValue

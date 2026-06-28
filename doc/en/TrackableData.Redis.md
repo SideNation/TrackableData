@@ -92,6 +92,41 @@ await listMapper.CreateAsync(db, logs, "player:1:logs");
 await setMapper.CreateAsync(db, achievements, "player:1:achievements");
 ```
 
+## Save Class Values
+
+Redis mappers can store class values in POCO properties, Dictionary/List/Set values, and container members. Values are serialized with `System.Text.Json`.
+
+```csharp
+using TrackableData;
+using TrackableData.Redis;
+
+public sealed class ItemValue
+{
+    public string Name { get; set; }
+    public int Level { get; set; }
+}
+
+var itemMapper = new TrackableDictionaryRedisMapper<int, ItemValue>();
+
+var items = new TrackableDictionary<int, ItemValue>
+{
+    { 1, new ItemValue { Name = "Sword", Level = 10 } }
+};
+
+await itemMapper.CreateAsync(db, items, "player:1:items");
+
+var loadedItems = await itemMapper.LoadAsync(db, "player:1:items");
+loadedItems.SetDefaultTrackerDeep();
+loadedItems[1] = new ItemValue { Name = "Long Sword", Level = 12 };
+
+await itemMapper.SaveAsync(
+    db,
+    (TrackableDictionaryTracker<int, ItemValue>)loadedItems.Tracker,
+    "player:1:items");
+```
+
+Pass custom `JsonSerializerOptions` to the mapper constructor when a class value needs converters, naming policy, or encoder behavior.
+
 ## Save Collection Changes
 
 ```csharp
@@ -199,6 +234,7 @@ Redis integration tests read `REDIS_CONNECTION_STRING` from the environment firs
 ## Notes
 
 - JSON commands fail if Redis Stack RedisJSON is not available.
+- Class values are supported when `System.Text.Json` can serialize and deserialize the class type.
 - `CreateAsync` stores the full JSON value, while `SaveAsync` applies tracker changes to JSON paths.
 - If multiple writers modify the same Redis key concurrently, the last write can win. Add distributed locking or optimistic concurrency when needed.
 - After saving, call `ClearTrackerDeep()` if you do not want to reuse the same tracker changes.

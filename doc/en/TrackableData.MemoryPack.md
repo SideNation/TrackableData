@@ -1,6 +1,6 @@
 # TrackableData.MemoryPack Usage
 
-`TrackableDataV2.MemoryPack` provides MemoryPack formatters for `TrackableDictionary`, `TrackableList`, `TrackableSet`, and their trackers.
+`TrackableDataV2.MemoryPack` provides MemoryPack formatters for trackable POCO, Container, Dictionary, List, Set values and their trackers.
 
 ## Installation
 
@@ -24,7 +24,7 @@ TrackableDataFormatterInitializer.RegisterListFormatter<string>();
 TrackableDataFormatterInitializer.RegisterSetFormatter<int>();
 ```
 
-Each registration method registers both the collection formatter and the tracker formatter.
+Each registration method registers both the value formatter and the tracker formatter.
 
 ## Serialize a Dictionary
 
@@ -46,6 +46,37 @@ var restored = MemoryPackSerializer.Deserialize<TrackableDictionary<int, string>
 
 Console.WriteLine(restored[1]); // Sword
 ```
+
+## Serialize Class Values
+
+Class values are supported when the class type is serializable by MemoryPack. Register the trackable generic combination that contains the class value.
+
+```csharp
+using MemoryPack;
+using TrackableData;
+using TrackableData.MemoryPack;
+
+[MemoryPackable]
+public partial class ItemValue
+{
+    public string Name { get; set; }
+    public int Level { get; set; }
+}
+
+TrackableDataFormatterInitializer.RegisterDictionaryFormatter<int, ItemValue>();
+
+var items = new TrackableDictionary<int, ItemValue>
+{
+    { 1, new ItemValue { Name = "Sword", Level = 10 } }
+};
+
+var bytes = MemoryPackSerializer.Serialize(items);
+var restored = MemoryPackSerializer.Deserialize<TrackableDictionary<int, ItemValue>>(bytes);
+
+Console.WriteLine(restored[1].Name); // Sword
+```
+
+The same rule applies to class-valued POCO properties, List/Set values, and container members. Register the POCO/container formatter and every member formatter combination you serialize.
 
 ## Serialize a Tracker
 
@@ -76,9 +107,12 @@ Console.WriteLine(target[2]); // C
 | `RegisterDictionaryFormatter<TKey, TValue>()` | `TrackableDictionary<TKey, TValue>`, `TrackableDictionaryTracker<TKey, TValue>` |
 | `RegisterListFormatter<T>()` | `TrackableList<T>`, `TrackableListTracker<T>` |
 | `RegisterSetFormatter<T>()` | `TrackableSet<T>`, `TrackableSetTracker<T>` |
+| `RegisterPocoFormatter<T>()` | `ITrackablePoco<T>` generated value, `TrackablePocoTracker<T>` |
+| `RegisterContainerFormatter<T>()` | `ITrackableContainer<T>` generated value, `IContainerTracker<T>` |
 
 ## Notes
 
 - Register every generic type combination you use.
-- This plugin does not automatically register POCO formatters. Use normal MemoryPack setup for POCO serialization.
+- Class value types must be serializable by MemoryPack, for example with `[MemoryPackable]`.
+- Container formatters do not replace member formatter registration. Register both the container and the concrete member types used inside it.
 - Registrations are explicit with concrete types for AOT-friendly usage.

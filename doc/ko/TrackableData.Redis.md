@@ -92,6 +92,41 @@ await listMapper.CreateAsync(db, logs, "player:1:logs");
 await setMapper.CreateAsync(db, achievements, "player:1:achievements");
 ```
 
+## Class Value 저장
+
+Redis mapper는 POCO 프로퍼티, Dictionary/List/Set 값, container 멤버에 class 값을 저장할 수 있습니다. 값은 `System.Text.Json`으로 직렬화됩니다.
+
+```csharp
+using TrackableData;
+using TrackableData.Redis;
+
+public sealed class ItemValue
+{
+    public string Name { get; set; }
+    public int Level { get; set; }
+}
+
+var itemMapper = new TrackableDictionaryRedisMapper<int, ItemValue>();
+
+var items = new TrackableDictionary<int, ItemValue>
+{
+    { 1, new ItemValue { Name = "Sword", Level = 10 } }
+};
+
+await itemMapper.CreateAsync(db, items, "player:1:items");
+
+var loadedItems = await itemMapper.LoadAsync(db, "player:1:items");
+loadedItems.SetDefaultTrackerDeep();
+loadedItems[1] = new ItemValue { Name = "Long Sword", Level = 12 };
+
+await itemMapper.SaveAsync(
+    db,
+    (TrackableDictionaryTracker<int, ItemValue>)loadedItems.Tracker,
+    "player:1:items");
+```
+
+Class value에 converter, naming policy, encoder 동작이 필요하면 mapper 생성자에 직접 `JsonSerializerOptions`를 넘깁니다.
+
 ## Collection 변경 저장
 
 ```csharp
@@ -199,6 +234,7 @@ Redis integration test는 `REDIS_CONNECTION_STRING`을 먼저 환경변수에서
 ## 주의할 점
 
 - Redis Stack RedisJSON 모듈이 없으면 JSON 명령이 실패합니다.
+- `System.Text.Json`이 직렬화/역직렬화할 수 있는 class 타입은 class value로 사용할 수 있습니다.
 - `CreateAsync`는 전체 JSON 값을 저장하고, `SaveAsync`는 tracker 변경분만 JSON path에 반영합니다.
 - 같은 Redis key를 여러 writer가 동시에 수정하면 마지막 write가 이길 수 있습니다. 필요하면 분산 lock이나 optimistic concurrency를 별도로 적용합니다.
 - 저장 후 같은 tracker를 다시 쓰지 않으려면 `ClearTrackerDeep()`을 호출합니다.
